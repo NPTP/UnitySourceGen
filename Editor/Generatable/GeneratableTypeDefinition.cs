@@ -13,7 +13,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal InheritanceModifier InheritanceModifier { get; set; }
         internal bool IsPartial { get; set; }
-        internal string InheritsFrom { get; set; }
+        private bool hasBaseClassInheritance;
+        internal string BaseClassTypeName { get; set; }
         internal SortedSet<string> ImplementsInterfaces { get; } = new();
 
         // TODO: Adding fields or properties with the same name should override any existing ones
@@ -68,14 +69,14 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             classSignature.Append(SPACE + TypeDefinition.AsString());
             classSignature.Append(SPACE + Name);
 
-            bool inheritsFromSomething = !string.IsNullOrEmpty(InheritsFrom);
+            bool inheritsFromSomething = !string.IsNullOrEmpty(BaseClassTypeName);
             bool implementsInterfaces = ImplementsInterfaces.Count > 0;
             if (inheritsFromSomething || implementsInterfaces)
             {
                 classSignature.Append(SPACE + ":" + SPACE);
                 if (inheritsFromSomething)
                 {
-                    classSignature.Append(InheritsFrom);
+                    classSignature.Append(BaseClassTypeName);
                     if (implementsInterfaces) classSignature.Append(COMMA + SPACE);
                 }
                 

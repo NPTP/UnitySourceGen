@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Extensions;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -15,8 +16,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private const string CLOSE_BRACE = "}";
         private const int TAB_SPACES_COUNT = 4;
 
-        internal AccessModifier AccessModifier { get; set; }
         internal string Name { get; }
+        
+        protected AccessModifier AccessModifier { get; }
         protected bool IsStatic { get; }
 
         protected GeneratableBase(string name, AccessModifier accessModifier, bool isStatic)
@@ -46,10 +48,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         
         protected void AddLine(StringBuilder sb, int indent, string line) => sb.AppendLine(Tab(indent) + line);
         
-        protected void AddLines(StringBuilder sb, int indent, IEnumerable<string> lines)
-        {
-            foreach (string line in lines) AddLine(sb, indent, line);
-        }
+        protected void AddLines(StringBuilder sb, int indent, IEnumerable<string> lines) => lines.ForEach(line => AddLine(sb, indent, line));
 
         protected void AddEmptyLine(StringBuilder sb) => sb.AppendLine();
 

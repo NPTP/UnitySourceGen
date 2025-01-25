@@ -16,26 +16,26 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
                 ExplicitBitShiftFlag
             }
             
-            internal string Name { get; }
-            internal EnumValueMode ValueMode { get; }
-            internal int Value { get; }
-            internal int BitShiftValue { get; }
+            private readonly string name;
+            private readonly EnumValueMode valueMode;
+            private readonly int value;
+            private readonly int bitShiftValue;
             
             internal EnumMember(string name, EnumValueMode valueMode, int? value, int? bitShiftValue)
             {
-                Name = name;
-                ValueMode = valueMode;
-                if (value.HasValue) Value = value.Value;
-                if (bitShiftValue.HasValue) BitShiftValue = bitShiftValue.Value;
+                this.name = name;
+                this.valueMode = valueMode;
+                if (value.HasValue) this.value = value.Value;
+                if (bitShiftValue.HasValue) this.bitShiftValue = bitShiftValue.Value;
             }
 
             public override string ToString()
             {
-                return ValueMode switch
+                return valueMode switch
                 {
-                    EnumValueMode.NonExplicit => Name,
-                    EnumValueMode.ExplicitInt => $"{Name} = {Value}",
-                    EnumValueMode.ExplicitBitShiftFlag => $"{Name} = {Value} << {BitShiftValue}",
+                    EnumValueMode.NonExplicit => name,
+                    EnumValueMode.ExplicitInt => $"{name} = {value}",
+                    EnumValueMode.ExplicitBitShiftFlag => $"{name} = {value} << {bitShiftValue}",
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
@@ -48,7 +48,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private List<EnumMember> Members { get; } = new();
 
         private bool isFlags;
-        public bool IsFlags
+        internal bool IsFlags
         {
             get => isFlags;
             set

@@ -30,6 +30,5 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         }
 
         protected bool HasNamespace() => !string.IsNullOrEmpty(Namespace);
-
     }
 }
