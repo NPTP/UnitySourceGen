@@ -32,6 +32,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             StringBuilder field = new();
             field.Append(AccessModifier.AsString());
             PrependAdditionalLabels(field);
+            if (IsStatic) field.Append(SPACE + STATIC);
             field.Append(SPACE + GetTypeName(FieldType));
             field.Append(SPACE + Name);
             if (TryGetInitialValueAsString(out string initialValueString))

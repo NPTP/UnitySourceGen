@@ -12,7 +12,7 @@ namespace NPTP.UnitySourceGen.Editor.Enums
         PrivateProtected,
         
         /// <summary>
-        /// Potentially unsupported in Unity's version of C#
+        /// Potentially unsupported access modifier in Unity's version of C#
         /// </summary>
         File
     }
