@@ -13,23 +13,25 @@ namespace NPTP.UnitySourceGen.Editor.UnitySourceGen.Editor.ScriptWriting
             return TryWrite(scriptPath, generatableClass.GenerateStringRepresentation());
         }
         
-        private static bool TryWrite(string filePath, string contents)
+        public static bool TryWrite(string filePath, string contents)
         {
+            string fullPath = Path.GetFullPath(filePath);
+            
             try
             {
-                int sepIndex = filePath.LastIndexOf(Path.DirectorySeparatorChar);
+                int sepIndex = fullPath.LastIndexOf(Path.DirectorySeparatorChar);
                 if (sepIndex >= 0)
                 {
-                    string directoryPath = filePath.Remove(sepIndex);
+                    string directoryPath = fullPath.Remove(sepIndex);
                     if (!Directory.Exists(directoryPath))
                     {
                         Directory.CreateDirectory(directoryPath);
                     }
                 }
 
-                File.WriteAllText(filePath, contents);
+                File.WriteAllText(fullPath, contents);
 
-                Debug.Log($"{filePath} written successfully!");
+                Debug.Log($"{fullPath} written successfully!");
                 return true;
             }
             catch (Exception e)
@@ -38,5 +40,7 @@ namespace NPTP.UnitySourceGen.Editor.UnitySourceGen.Editor.ScriptWriting
                 return false;
             }
         }
+        
+        
     }
 }

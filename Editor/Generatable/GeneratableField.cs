@@ -58,46 +58,18 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             if (IsStatic) field.Append(SPACE + STATIC);
             field.Append(SPACE + GetTypeName(FieldType));
             field.Append(SPACE + Name);
-            if (TryGetInitialValueAsString(out string initialValueString))
+
+            if (hasInitialValue)
             {
                 field.Append(SPACE + "=" + SPACE);
-                field.Append(initialValueString);
-
+                field.Append(GetValueAsString(typeof(T), initialValue));
             }
+            
             field.Append(SEMICOLON);
 
             return field.ToString();
         }
 
         protected virtual void PrependAdditionalLabels(StringBuilder fieldStringBuilder) { }
-
-        private bool TryGetInitialValueAsString(out string initialValueString)
-        {
-            if (!hasInitialValue)
-            {
-                initialValueString = null;
-                return false;
-            }
-            
-            StringBuilder sb = new();
-            string left = string.Empty;
-            string right = string.Empty;
-
-            if (FieldType == typeof(string))
-            {
-                left = right = "\"";
-            }
-            else if (FieldType == typeof(float))
-            {
-                right = "f";
-            }
-
-            sb.Append(left);
-            sb.Append(initialValue);
-            sb.Append(right);
-            
-            initialValueString = sb.ToString();
-            return true;
-        }
     }
 }

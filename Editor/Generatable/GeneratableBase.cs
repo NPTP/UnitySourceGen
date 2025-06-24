@@ -47,6 +47,28 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return tab.ToString();
         }
         
+        protected string GetValueAsString<TValue>(Type type, TValue value)
+        {
+            StringBuilder sb = new();
+            string left = string.Empty;
+            string right = string.Empty;
+
+            if (type == typeof(string))
+            {
+                left = right = "\"";
+            }
+            else if (type == typeof(float))
+            {
+                right = "f";
+            }
+
+            sb.Append(left);
+            sb.Append(value);
+            sb.Append(right);
+            
+            return sb.ToString();
+        }
+        
         protected void AddLine(StringBuilder sb, int indent, string line) => sb.AppendLine(Tab(indent) + line);
         
         protected void AddLines(StringBuilder sb, int indent, IEnumerable<string> lines) => lines.ForEach(line => AddLine(sb, indent, line));

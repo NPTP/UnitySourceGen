@@ -10,6 +10,9 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return gen;
         }
 
+        /// <summary>
+        /// Write like: WithDirective("UnityEngine"), rather than WithDirective("using UnityEngine;").
+        /// </summary>
         public static T WithDirective<T>(this T gen, string directive) where T : GeneratableDefinition
         {
             gen.Directives.Add(directive);

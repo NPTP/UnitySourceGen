@@ -72,6 +72,13 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, fieldToGet));
             return gen;
         }
+        
+        public static GeneratableTypeDefinition WithGetterProperty<T>(this GeneratableTypeDefinition gen, string propertyName, AccessModifier getModifier, T value, bool isStatic)
+        {
+            if (!CheckValidName(propertyName)) return gen;
+            gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, value));
+            return gen;
+        }
 
         public static GeneratableTypeDefinition WithStaticMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, params string[] body)
         {
@@ -126,6 +133,8 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             gen.AddField(field);
 
             gen.WithGetterProperty<T>(fieldName.UppercaseFirst(), AccessModifier.Public, field, isStatic: false);
+
+            gen.WithDirective(Directives.UNITY_ENGINE);
             
             return gen;
         }
