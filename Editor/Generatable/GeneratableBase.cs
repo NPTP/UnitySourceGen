@@ -19,7 +19,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         internal string Name { get; }
         
         protected AccessModifier AccessModifier { get; }
-        protected bool IsStatic { get; }
+        public bool IsStatic { get; }
 
         protected GeneratableBase(string name, AccessModifier accessModifier, bool isStatic)
         {
@@ -28,6 +28,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             IsStatic = isStatic;
         }
 
+        public override string ToString() => GenerateStringRepresentation();
         public abstract string GenerateStringRepresentation();
         
         // TODO: Make this abstract, and clean it up

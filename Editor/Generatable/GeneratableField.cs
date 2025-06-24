@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -13,6 +16,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     {
         private readonly bool hasInitialValue;
         private readonly T initialValue;
+        private List<AddableAttribute> attributes;
+
+        private bool HasAttributes => attributes is { Count: > 0 };
 
         private static Type FieldType => typeof(T);
         
@@ -27,9 +33,26 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             hasInitialValue = true;
         }
 
+        public void AddAttribute(AddableAttribute addableAttribute)
+        {
+            if (attributes != null && attributes.Any(a => Equals(a, addableAttribute)))
+            {
+                return;
+            }
+            
+            attributes ??= new();
+            attributes.Add(addableAttribute);
+        }
+
         public override string GenerateStringRepresentation()
         {
             StringBuilder field = new();
+
+            if (HasAttributes)
+            {
+                foreach (var attribute in attributes) field.Append(attribute.GetStringRepresentation() + SPACE);
+            }
+            
             field.Append(AccessModifier.AsString());
             PrependAdditionalLabels(field);
             if (IsStatic) field.Append(SPACE + STATIC);

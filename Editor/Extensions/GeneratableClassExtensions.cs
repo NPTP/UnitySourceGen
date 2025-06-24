@@ -1,5 +1,6 @@
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
 using UnityEngine;
 
 namespace NPTP.UnitySourceGen.Editor.Extensions
@@ -65,10 +66,10 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithProperty(this GeneratableTypeDefinition gen, string propertyName, AccessModifier getModifier, AccessModifier setModifier, bool isStatic)
+        public static GeneratableTypeDefinition WithGetterProperty<T>(this GeneratableTypeDefinition gen, string propertyName, AccessModifier getModifier, GeneratableField fieldToGet, bool isStatic)
         {
             if (!CheckValidName(propertyName)) return gen;
-            gen.AddProperty(new GeneratableProperty(propertyName, getModifier, setModifier, isStatic));
+            gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, fieldToGet));
             return gen;
         }
 
@@ -92,6 +93,44 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, inheritanceModifier, isStatic: false, body));
             return gen;
         }
+
+        #region Unity Centric
+
+        public static GeneratableTypeDefinition WithSerializedField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        {
+            if (!CheckValidName(fieldName)) return gen;
+            var field = new GeneratableField<T>(fieldName, accessModifier, isStatic: false, initialValue);
+            field.AddAttribute(new SerializeFieldAttribute());
+            gen.AddField(field);
+            return gen;
+        }
+
+        /// <summary>
+        /// Generate a serialized private backing field with a public accessor property. For example:
+        /// WithSerializedProperty<int>("myProperty", 6) will produce:
+        ///     [SerializeField] private int myProperty = 6;
+        ///     public int MyProperty => myProperty;
+        /// </summary>
+        public static GeneratableTypeDefinition WithSerializedProperty<T>(this GeneratableTypeDefinition gen, string fieldName, T initialValue = default)
+        {
+            if (!CheckValidName(fieldName)) return gen;
+
+            if (gen.IsStatic)
+            {
+                Debug.LogWarning("Can't implement a serialized field on a static object.");
+                return gen;
+            }
+            
+            var field = new GeneratableField<T>(fieldName, AccessModifier.Private, isStatic: false, initialValue);
+            field.AddAttribute(new SerializeFieldAttribute());
+            gen.AddField(field);
+
+            gen.WithGetterProperty<T>(fieldName.UppercaseFirst(), AccessModifier.Public, field, isStatic: false);
+            
+            return gen;
+        }
+
+        #endregion
 
         private static bool CheckValidName(string name)
         {
