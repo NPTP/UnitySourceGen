@@ -34,10 +34,10 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         // TODO: Make this abstract, and clean it up
         public IEnumerable<string> GenerateStringRepresentationLines()
         {
-            var x = GenerateStringRepresentation().Split(Environment.NewLine);
-            string[] y = new string[x.Length - 1];
-            Array.Copy(x, y, y.Length);
-            return y;
+            string[] lines = GenerateStringRepresentation().Split(Environment.NewLine);
+            string[] linesWithoutLastLine = new string[lines.Length - 1];
+            Array.Copy(lines, linesWithoutLastLine, linesWithoutLastLine.Length);
+            return linesWithoutLastLine;
         }
 
         private string Tab(int count)

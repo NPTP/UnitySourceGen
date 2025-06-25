@@ -1,37 +1,88 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using NPTP.UnitySourceGen.Editor.Extensions;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using UnityEngine;
 
-namespace NPTP.UnitySourceGen.Editor.UnitySourceGen.Editor.ScriptWriting
+namespace NPTP.UnitySourceGen.Editor.ScriptWriting
 {
     internal static class ScriptWriter
     {
-        internal static bool TryReplaceClass(Type classType, GeneratableClass generatableClass)
+        private enum ReplaceState
         {
-            string scriptPath = AssetsScriptGetter.GetSystemFilePathToScriptInAssets(classType);
-            return TryWrite(scriptPath, generatableClass.GenerateStringRepresentation());
+            WaitingForStartMarker,
+            WaitingForEndMarker
         }
         
-        public static bool TryWrite(string filePath, string contents)
+        internal static bool TryReplaceClass(Type classType, GeneratableClass generatableClass)
         {
-            string fullPath = Path.GetFullPath(filePath);
-            
+            return AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets(classType, out UnityAssetPath unityAssetPath) &&
+                   TryWrite(unityAssetPath, generatableClass.GenerateStringRepresentation());
+        }
+
+        internal static bool TryReplaceSection(UnityAssetPath unityAssetPath, string sectionStartMarker, string sectionEndMarker, GeneratableCodeChunk codeChunk)
+        {
+            List<string> lines = new();
+
             try
             {
-                int sepIndex = fullPath.LastIndexOf(Path.DirectorySeparatorChar);
+                using StreamReader sr = new(unityAssetPath.SystemPath);
+                ReplaceState replaceState = ReplaceState.WaitingForStartMarker;
+                while (sr.ReadLine() is { } line)
+                {
+                    switch (replaceState)
+                    {
+                        case ReplaceState.WaitingForStartMarker:
+                            lines.Add(line);
+                            if (line.Contains(sectionStartMarker))
+                            {
+                                codeChunk.Indent = GetIndentLevel(line);
+                                lines.AddRange(codeChunk.GenerateStringRepresentationLines());
+                                replaceState = ReplaceState.WaitingForEndMarker;
+                            }
+                            break;
+                        case ReplaceState.WaitingForEndMarker:
+                            if (line.Contains(sectionEndMarker))
+                            {
+                                lines.Add(line);
+                                replaceState = ReplaceState.WaitingForStartMarker;
+                            }
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"The file could not be read: {e.Message}");
+                return false;
+            }
+            
+            return TryWrite(unityAssetPath, lines);
+        }
+
+        private static bool TryWrite(UnityAssetPath unityAssetPath, IEnumerable<string> contentsLines) => TryWrite(unityAssetPath, contentsLines.LinesToString());
+        internal static bool TryWrite(UnityAssetPath unityAssetPath, string contents)
+        {
+            string systemPath = unityAssetPath.SystemPath;
+
+            try
+            {
+                int sepIndex = systemPath.LastIndexOf(Path.DirectorySeparatorChar);
                 if (sepIndex >= 0)
                 {
-                    string directoryPath = fullPath.Remove(sepIndex);
+                    string directoryPath = systemPath.Remove(sepIndex);
                     if (!Directory.Exists(directoryPath))
                     {
                         Directory.CreateDirectory(directoryPath);
                     }
                 }
 
-                File.WriteAllText(fullPath, contents);
+                File.WriteAllText(systemPath, contents);
 
-                Debug.Log($"{fullPath} written successfully!");
+                Debug.Log($"{systemPath} written successfully!");
                 return true;
             }
             catch (Exception e)
@@ -41,6 +92,32 @@ namespace NPTP.UnitySourceGen.Editor.UnitySourceGen.Editor.ScriptWriting
             }
         }
         
-        
+        private static int GetIndentLevel(string line)
+        {
+            if (string.IsNullOrEmpty(line))
+                return 0;
+
+            int whitespaceLength = line.Length - line.TrimStart().Length;
+            if (whitespaceLength == 0)
+                return 0;
+
+            string whitespace = line.Substring(0, whitespaceLength);
+            int tabs = 0;
+            int spaces = 0;
+            for (int i = 0; i < whitespace.Length; i++)
+            {
+                switch (whitespace[i])
+                {
+                    case ' ':
+                        spaces++;
+                        break;
+                    case '\t':
+                        tabs++;
+                        break;
+                }
+            }
+
+            return tabs + (int)Math.Ceiling((decimal)(spaces / 4));
+        }
     }
 }

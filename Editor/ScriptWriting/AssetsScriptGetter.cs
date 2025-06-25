@@ -1,14 +1,13 @@
 using System;
 using UnityEditor;
-using UnityEngine;
 
-namespace NPTP.UnitySourceGen.Editor.UnitySourceGen.Editor.ScriptWriting
+namespace NPTP.UnitySourceGen.Editor.ScriptWriting
 {
     internal static class AssetsScriptGetter
     {
-        internal static string GetSystemFilePathToScriptInAssets<T>() => GetSystemFilePathToScriptInAssets(typeof(T));
-        internal static string GetSystemFilePathToScriptInAssets(Type type) => GetSystemFilePathToScriptInAssetsCommon(type);
-        private static string GetSystemFilePathToScriptInAssetsCommon(Type type)
+        internal static bool TryGetSystemFilePathToScriptInAssets<T>(out UnityAssetPath unityAssetPath) => TryGetSystemFilePathToScriptInAssets(typeof(T), out unityAssetPath);
+        internal static bool TryGetSystemFilePathToScriptInAssets(Type type, out UnityAssetPath unityAssetPath) => GetSystemFilePathToScriptInAssetsCommon(type, out unityAssetPath);
+        private static bool GetSystemFilePathToScriptInAssetsCommon(Type type, out UnityAssetPath unityAssetPath)
         {
             string[] guids = AssetDatabase.FindAssets("t:Script a:assets");
             foreach (string guid in guids)
@@ -28,12 +27,13 @@ namespace NPTP.UnitySourceGen.Editor.UnitySourceGen.Editor.ScriptWriting
                     // TODO: record support
                     // || IsRecord(type, scriptAsset)
                 {
-                    string path = Application.dataPath + assetPath.Replace("Assets", string.Empty);
-                    return path;
+                    unityAssetPath = new UnityAssetPath(assetPath);
+                    return true;
                 }
             }
 
-            return string.Empty;
+            unityAssetPath = default;
+            return false;
         }
 
         private static bool IsEnum(Type type, MonoScript scriptAsset)
