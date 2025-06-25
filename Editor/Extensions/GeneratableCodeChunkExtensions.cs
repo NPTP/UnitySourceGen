@@ -1,5 +1,7 @@
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
+using UnityEngine;
 
 namespace NPTP.UnitySourceGen.Editor.Extensions
 {
@@ -74,5 +76,48 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, inheritanceModifier, isStatic: false, body));
             return gen;
         }
+        
+        #region Unity Centric
+
+        public static GeneratableCodeChunk AddSerializedField<T>(this GeneratableCodeChunk gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        {
+            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
+            var field = new GeneratableField<T>(fieldName, accessModifier, isStatic: false, initialValue);
+            field.AddAttribute(new SerializeFieldAttribute());
+            gen.AddField(field);
+            return gen;
+        }
+
+        public static GeneratableCodeChunk AddSerializedProperty<T>(this GeneratableCodeChunk gen, string fieldOrPropertyName)
+        {
+            if (!ExtensionsCommon.CheckValidName(fieldOrPropertyName)) return gen;
+            
+            string fieldName = fieldOrPropertyName.LowercaseFirst();
+            var field = new GeneratableField<T>(fieldName, AccessModifier.Private, isStatic: false);
+            field.AddAttribute(new SerializeFieldAttribute());
+            gen.AddField(field);
+
+            string propertyName = fieldOrPropertyName.UppercaseFirst();
+            gen.AddGetterProperty<T>(propertyName, AccessModifier.Public, field, isStatic: false);
+            
+            return gen;
+        }
+        
+        public static GeneratableCodeChunk AddSerializedProperty<T>(this GeneratableCodeChunk gen, string fieldOrPropertyName, T initialValue)
+        {
+            if (!ExtensionsCommon.CheckValidName(fieldOrPropertyName)) return gen;
+            
+            string fieldName = fieldOrPropertyName.LowercaseFirst();
+            var field = new GeneratableField<T>(fieldName, AccessModifier.Private, isStatic: false, initialValue);
+            field.AddAttribute(new SerializeFieldAttribute());
+            gen.AddField(field);
+
+            string propertyName = fieldOrPropertyName.UppercaseFirst();
+            gen.AddGetterProperty<T>(propertyName, AccessModifier.Public, field, isStatic: false);
+            
+            return gen;
+        }
+
+        #endregion
     }
 }
