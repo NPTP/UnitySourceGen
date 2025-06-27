@@ -1,6 +1,9 @@
 # Unity Source Gen
 ## Changelog
 
+0.1.3
+- Support custom naming syntax with prefix/suffix
+
 0.1.2
 - CodeChunk generation implemented
 - Replace code in specifically marked parts of existing scripts
