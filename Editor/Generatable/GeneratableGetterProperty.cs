@@ -10,18 +10,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private const string GETTER_ARROW = "=>";
         
         private static Type PropertyType => typeof(T);
+
+        private readonly string getterSyntax;
         
-        private readonly GeneratableField accessedField;
-        private readonly T getterValue;
-
-        internal GeneratableGetterProperty(NameSyntax nameSyntax, AccessModifier getModifier, bool isStatic, GeneratableField accessedField) : base(nameSyntax, getModifier, isStatic)
+        internal GeneratableGetterProperty(NameSyntax nameSyntax, NameSyntax getterSyntax, AccessModifier getModifier, bool isStatic) : base(nameSyntax, getModifier, isStatic)
         {
-            this.accessedField = accessedField;
-        }
-
-        internal GeneratableGetterProperty(NameSyntax nameSyntax, AccessModifier accessModifier, bool isStatic, T getterValue) : base(nameSyntax, accessModifier, isStatic)
-        {
-            this.getterValue = getterValue;
+            this.getterSyntax = getterSyntax.GetName();
         }
 
         public override string GenerateStringRepresentation()
@@ -33,10 +27,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             property.Append(SPACE + GetTypeName(PropertyType));
             property.Append(SPACE + Name);
             property.Append(SPACE + GETTER_ARROW);
-            
-            if (accessedField != null) property.Append(SPACE + accessedField.Name);
-            else if (getterValue != null) property.Append(SPACE + GetValueAsString(typeof(T), getterValue));
-            
+            property.Append(SPACE + getterSyntax);
             property.Append(SEMICOLON);
 
             return property.ToString();

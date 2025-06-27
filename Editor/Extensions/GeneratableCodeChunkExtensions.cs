@@ -42,20 +42,13 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return gen;
         }
 
-        public static GeneratableCodeChunk AddGetterProperty<T>(this GeneratableCodeChunk gen, NameSyntax propertyName, AccessModifier getModifier, GeneratableField fieldToGet, bool isStatic)
+        public static GeneratableCodeChunk AddGetterProperty<T>(this GeneratableCodeChunk gen, NameSyntax propertyName, NameSyntax getterSyntax, AccessModifier getModifier, bool isStatic)
         {
             if (!ExtensionsCommon.CheckValidName(propertyName)) return gen;
-            gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, fieldToGet));
+            gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getterSyntax, getModifier, isStatic));
             return gen;
         }
         
-        public static GeneratableCodeChunk AddGetterProperty<T>(this GeneratableCodeChunk gen, NameSyntax propertyName, AccessModifier getModifier, T value, bool isStatic)
-        {
-            if (!ExtensionsCommon.CheckValidName(propertyName)) return gen;
-            gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, value));
-            return gen;
-        }
-
         public static GeneratableCodeChunk AddStaticMethod<T>(this GeneratableCodeChunk gen, NameSyntax methodName, AccessModifier accessModifier, params string[] body)
         {
             if (!ExtensionsCommon.CheckValidName(methodName)) return gen;
@@ -88,19 +81,15 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return gen;
         }
 
-        public static GeneratableCodeChunk AddSerializedProperty<T>(this GeneratableCodeChunk gen, NameSyntax fieldOrPropertyNameSyntax, bool getterIsStatic)
+        public static GeneratableCodeChunk AddSerializedProperty<T>(this GeneratableCodeChunk gen, NameSyntax fieldName, NameSyntax propertyName, NameSyntax getterSyntax, bool getterIsStatic)
         {
-            if (!ExtensionsCommon.CheckValidName(fieldOrPropertyNameSyntax)) return gen;
+            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
 
-            NameSyntax fieldNameSyntax = fieldOrPropertyNameSyntax;
-            fieldNameSyntax.name = fieldOrPropertyNameSyntax.name.LowercaseFirst();
-            var field = new GeneratableField<T>(fieldNameSyntax, AccessModifier.Private, isStatic: false);
+            var field = new GeneratableField<T>(fieldName.WithLowerCaseName(), AccessModifier.Private, isStatic: false);
             field.AddAttribute(new SerializeFieldAttribute());
             gen.AddField(field);
 
-            NameSyntax propertyNameSyntax = fieldOrPropertyNameSyntax;
-            propertyNameSyntax.name = fieldOrPropertyNameSyntax.name.UppercaseFirst();
-            gen.AddGetterProperty<T>(propertyNameSyntax, AccessModifier.Public, field, getterIsStatic);
+            gen.AddGetterProperty<T>(propertyName.WithUpperCaseName(), getterSyntax, AccessModifier.Public, getterIsStatic);
             
             return gen;
         }

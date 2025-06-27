@@ -65,20 +65,6 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithGetterProperty<T>(this GeneratableTypeDefinition gen, NameSyntax propertyName, AccessModifier getModifier, GeneratableField fieldToGet, bool isStatic)
-        {
-            if (!ExtensionsCommon.CheckValidName(propertyName)) return gen;
-            gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, fieldToGet));
-            return gen;
-        }
-        
-        public static GeneratableTypeDefinition WithGetterProperty<T>(this GeneratableTypeDefinition gen, NameSyntax propertyName, AccessModifier getModifier, T value, bool isStatic)
-        {
-            if (!ExtensionsCommon.CheckValidName(propertyName)) return gen;
-            gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, value));
-            return gen;
-        }
-
         public static GeneratableTypeDefinition WithStaticMethod<T>(this GeneratableTypeDefinition gen, NameSyntax methodName, AccessModifier accessModifier, params string[] body)
         {
             if (!ExtensionsCommon.CheckValidName(methodName)) return gen;
