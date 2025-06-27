@@ -20,10 +20,10 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return mod;
         }
 
-        public static ModifiableScript<T> ExecuteModification<T>(this ModifiableScript<T> mod)
+        public static ModifiableScript<T> ExecuteModification<T>(this ModifiableScript<T> mod, bool refreshAssets)
         {
             mod.ExecuteModification();
-            AssetDatabase.Refresh();
+            if (refreshAssets) AssetDatabase.Refresh();
             return mod;
         }
     }
