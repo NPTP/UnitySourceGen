@@ -26,5 +26,19 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         {
             return string.IsNullOrEmpty(s) ? string.Empty : s;
         }
+        
+        public static bool ContainsAll(this string s, params string[] others)
+        {
+            if (string.IsNullOrEmpty(s) || others.Length == 0)
+                return false;
+            
+            foreach (string other in others)
+            {
+                if (!s.Contains(other))
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

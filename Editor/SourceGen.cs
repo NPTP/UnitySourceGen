@@ -19,8 +19,18 @@ namespace NPTP.UnitySourceGen.Editor
             {
                 return false;
             }
-            
-            return ScriptWriter.TryReplaceSection(unityAssetPath, sectionStartMarker, sectionEndMarker, codeChunk);
+
+            return ScriptWriter.TryReplaceSection(unityAssetPath, new[] { sectionStartMarker }, sectionEndMarker, codeChunk);
+        }
+
+        public static bool WriteCodeChunkInScriptRegion<T>(GeneratableCodeChunk codeChunk, string regionName)
+        {
+            if (!AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets<T>(out UnityAssetPath unityAssetPath))
+            {
+                return false;
+            }
+
+            return ScriptWriter.TryReplaceSection(unityAssetPath, new[] { "#region", regionName }, "#endregion", codeChunk);
         }
         
         public static bool WriteClassToAssetsScriptFile<T>(string pathInsideAssets, GeneratableClass generatableClass)

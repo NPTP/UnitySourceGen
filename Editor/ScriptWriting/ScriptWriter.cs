@@ -21,7 +21,7 @@ namespace NPTP.UnitySourceGen.Editor.ScriptWriting
                    TryWrite(unityAssetPath, generatableClass.GenerateStringRepresentation());
         }
 
-        internal static bool TryReplaceSection(UnityAssetPath unityAssetPath, string sectionStartMarker, string sectionEndMarker, GeneratableCodeChunk codeChunk)
+        internal static bool TryReplaceSection(UnityAssetPath unityAssetPath, string[] sectionStartMarkers, string sectionEndMarker, GeneratableCodeChunk codeChunk)
         {
             List<string> lines = new();
 
@@ -35,7 +35,7 @@ namespace NPTP.UnitySourceGen.Editor.ScriptWriting
                     {
                         case ReplaceState.WaitingForStartMarker:
                             lines.Add(line);
-                            if (line.Contains(sectionStartMarker))
+                            if (line.ContainsAll(sectionStartMarkers))
                             {
                                 codeChunk.Indent = GetIndentLevel(line);
                                 lines.AddRange(codeChunk.GenerateStringRepresentationLines());
