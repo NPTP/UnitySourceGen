@@ -58,7 +58,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             }
         }
 
-        internal GeneratableEnum(string name, AccessModifier accessModifier) : base(name, accessModifier, isStatic: false) { }
+        internal GeneratableEnum(string nameSyntax, AccessModifier accessModifier) : base(nameSyntax, accessModifier, isStatic: false) { }
 
         internal void AddMember(string name, EnumMember.EnumValueMode valueMode, int? value, int? bitShiftValue)
         {

@@ -22,7 +22,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private List<GeneratableProperty> Properties { get; } = new();
         private List<GeneratableMethod> Methods { get; } = new();
 
-        internal GeneratableTypeDefinition(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
+        internal GeneratableTypeDefinition(string nameSyntax, AccessModifier accessModifier, bool isStatic) : base(nameSyntax, accessModifier, isStatic) { }
 
         public override string GenerateStringRepresentation()
         {

@@ -1,7 +1,6 @@
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
-using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
-using UnityEngine;
+using NPTP.UnitySourceGen.Editor.Options;
 
 namespace NPTP.UnitySourceGen.Editor.Extensions
 {
@@ -31,114 +30,74 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier)
+        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier)
         {
             if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
             gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: false));
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier, T initialValue)
         {
             if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
             gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: false, initialValue));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier)
+        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier)
         {
             if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
             gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: true));
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier, T initialValue)
         {
             if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
             gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: true, initialValue));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier, T initialValue)
         {
             if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
             gen.AddField(new GeneratableConstField<T>(fieldName, accessModifier, initialValue));
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithGetterProperty<T>(this GeneratableTypeDefinition gen, string propertyName, AccessModifier getModifier, GeneratableField fieldToGet, bool isStatic)
+        public static GeneratableTypeDefinition WithGetterProperty<T>(this GeneratableTypeDefinition gen, NameSyntax propertyName, AccessModifier getModifier, GeneratableField fieldToGet, bool isStatic)
         {
             if (!ExtensionsCommon.CheckValidName(propertyName)) return gen;
             gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, fieldToGet));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithGetterProperty<T>(this GeneratableTypeDefinition gen, string propertyName, AccessModifier getModifier, T value, bool isStatic)
+        public static GeneratableTypeDefinition WithGetterProperty<T>(this GeneratableTypeDefinition gen, NameSyntax propertyName, AccessModifier getModifier, T value, bool isStatic)
         {
             if (!ExtensionsCommon.CheckValidName(propertyName)) return gen;
             gen.AddProperty(new GeneratableGetterProperty<T>(propertyName, getModifier, isStatic, value));
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithStaticMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, params string[] body)
+        public static GeneratableTypeDefinition WithStaticMethod<T>(this GeneratableTypeDefinition gen, NameSyntax methodName, AccessModifier accessModifier, params string[] body)
         {
             if (!ExtensionsCommon.CheckValidName(methodName)) return gen;
             gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, InheritanceModifier.None, isStatic: true, body));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, params string[] body)
+        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, NameSyntax methodName, AccessModifier accessModifier, params string[] body)
         {
             if (!ExtensionsCommon.CheckValidName(methodName)) return gen;
             gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, InheritanceModifier.None, isStatic: false, body));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body)
+        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, NameSyntax methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body)
         {
             if (!ExtensionsCommon.CheckValidName(methodName)) return gen;
             gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, inheritanceModifier, isStatic: false, body));
             return gen;
         }
-
-        #region Unity Centric
-
-        public static GeneratableTypeDefinition WithSerializedField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
-        {
-            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
-            var field = new GeneratableField<T>(fieldName, accessModifier, isStatic: false, initialValue);
-            field.AddAttribute(new SerializeFieldAttribute());
-            gen.AddField(field);
-            return gen;
-        }
-
-        /// <summary>
-        /// Generate a serialized private backing field with a public accessor property. For example:
-        /// WithSerializedProperty<int>("myProperty", 6) will produce:
-        ///     [SerializeField] private int myProperty = 6;
-        ///     public int MyProperty => myProperty;
-        /// </summary>
-        public static GeneratableTypeDefinition WithSerializedProperty<T>(this GeneratableTypeDefinition gen, string fieldName, T initialValue = default)
-        {
-            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
-
-            if (gen.IsStatic)
-            {
-                Debug.LogWarning("Can't implement a serialized field on a static object.");
-                return gen;
-            }
-            
-            var field = new GeneratableField<T>(fieldName, AccessModifier.Private, isStatic: false, initialValue);
-            field.AddAttribute(new SerializeFieldAttribute());
-            gen.AddField(field);
-
-            gen.WithGetterProperty<T>(fieldName.UppercaseFirst(), AccessModifier.Public, field, isStatic: false);
-
-            gen.WithDirective(Directives.UNITY_ENGINE);
-            
-            return gen;
-        }
-
-        #endregion
     }
 }

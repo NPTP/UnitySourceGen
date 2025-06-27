@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
+using NPTP.UnitySourceGen.Editor.Options;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
     public abstract class GeneratableField : GeneratableBase
     {
-        protected GeneratableField(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
+        protected GeneratableField(NameSyntax nameSyntax, AccessModifier accessModifier, bool isStatic) : base(nameSyntax, accessModifier, isStatic) { }
     }
     
     public class GeneratableField<T> : GeneratableField
@@ -22,12 +23,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         private static Type FieldType => typeof(T);
         
-        internal GeneratableField(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic)
+        internal GeneratableField(NameSyntax nameSyntax, AccessModifier accessModifier, bool isStatic) : base(nameSyntax, accessModifier, isStatic)
         {
             hasInitialValue = false;
         }
 
-        internal GeneratableField(string name, AccessModifier accessModifier, bool isStatic, T initialValue) : base(name, accessModifier, isStatic)
+        internal GeneratableField(NameSyntax nameSyntax, AccessModifier accessModifier, bool isStatic, T initialValue) : base(nameSyntax, accessModifier, isStatic)
         {
             this.initialValue = initialValue;
             hasInitialValue = true;

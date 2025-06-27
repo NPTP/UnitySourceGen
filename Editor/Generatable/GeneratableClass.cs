@@ -6,7 +6,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     {
         protected override TypeDefinition TypeDefinition => TypeDefinition.Class;
         
-        internal GeneratableClass(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic)
+        internal GeneratableClass(string nameSyntax, AccessModifier accessModifier, bool isStatic) : base(nameSyntax, accessModifier, isStatic)
         {
         }
     }

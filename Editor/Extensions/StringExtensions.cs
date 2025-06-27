@@ -21,5 +21,10 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             if (s.Length == 1) return firstChar.ToString();
             return  firstChar + s[1..];
         }
+
+        public static string StringValueOrEmpty(this string s)
+        {
+            return string.IsNullOrEmpty(s) ? string.Empty : s;
+        }
     }
 }

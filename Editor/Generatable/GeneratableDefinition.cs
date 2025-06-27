@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Options;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -12,7 +13,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         internal SortedSet<string> Directives { get; } = new();
         internal string Namespace { get; set; }
 
-        internal GeneratableDefinition(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
+        internal GeneratableDefinition(NameSyntax nameSyntax, AccessModifier accessModifier, bool isStatic) : base(nameSyntax, accessModifier, isStatic) { }
 
         protected void AddUsingDirectives(StringBuilder sb, int indent)
         {

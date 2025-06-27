@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Options;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -13,12 +14,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private readonly GeneratableField accessedField;
         private readonly T getterValue;
 
-        internal GeneratableGetterProperty(string name, AccessModifier getModifier, bool isStatic, GeneratableField accessedField) : base(name, getModifier, isStatic)
+        internal GeneratableGetterProperty(NameSyntax nameSyntax, AccessModifier getModifier, bool isStatic, GeneratableField accessedField) : base(nameSyntax, getModifier, isStatic)
         {
             this.accessedField = accessedField;
         }
 
-        internal GeneratableGetterProperty(string name, AccessModifier accessModifier, bool isStatic, T getterValue) : base(name, accessModifier, isStatic)
+        internal GeneratableGetterProperty(NameSyntax nameSyntax, AccessModifier accessModifier, bool isStatic, T getterValue) : base(nameSyntax, accessModifier, isStatic)
         {
             this.getterValue = getterValue;
         }
