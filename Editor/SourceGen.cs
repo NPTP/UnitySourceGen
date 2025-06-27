@@ -2,6 +2,7 @@ using System;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Extensions;
 using NPTP.UnitySourceGen.Editor.Generatable;
+using NPTP.UnitySourceGen.Editor.Modifiable;
 using NPTP.UnitySourceGen.Editor.ScriptWriting;
 
 namespace NPTP.UnitySourceGen.Editor
@@ -12,6 +13,12 @@ namespace NPTP.UnitySourceGen.Editor
         public static GeneratableClass NewStaticClass(string name, AccessModifier accessModifier) => new GeneratableClass(name, accessModifier, isStatic: true);
         public static GeneratableEnum NewEnum(string name, AccessModifier accessModifier) => new GeneratableEnum(name, accessModifier);
         public static GeneratableCodeChunk NewCodeChunk() => new GeneratableCodeChunk(default, default, default);
+
+
+        public static ModifiableScript<T> GetScriptToModify<T>()
+        {
+            return new ModifiableScript<T>();
+        }
 
         public static bool WriteCodeChunkInScript<T>(GeneratableCodeChunk codeChunk, string sectionStartMarker, string sectionEndMarker)
         {

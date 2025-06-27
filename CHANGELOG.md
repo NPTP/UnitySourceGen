@@ -4,6 +4,7 @@
 0.1.3
 - Support custom naming syntax with prefix/suffix
 - Support writing to a named #region in an existing script
+- Support adding directives & aliases to an existing script
 
 0.1.2
 - CodeChunk generation implemented
