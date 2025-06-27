@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using NPTP.UnitySourceGen.Editor.Extensions;
+using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Generatable.Directives;
 using NPTP.UnitySourceGen.Editor.ScriptWriting;
 using UnityEngine;
@@ -12,25 +14,11 @@ namespace NPTP.UnitySourceGen.Editor.Modifiable
     {
         private readonly List<string> scriptLines;
         private readonly UnityAssetPath unityAssetPath;
-        
-        internal ModifiableScript()
+
+        internal ModifiableScript(List<string> scriptLines, UnityAssetPath unityAssetPath)
         {
-            if (AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets(typeof(T), out unityAssetPath))
-            {
-                try
-                {
-                    scriptLines = File.ReadAllLines(unityAssetPath.SystemPath).ToList();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"Could not read script: {e.Message}");
-                    throw;
-                }
-            }
-            else
-            {
-                throw new Exception($"Could not find script of type {typeof(T)}");
-            }
+            this.scriptLines = scriptLines;
+            this.unityAssetPath = unityAssetPath;
         }
 
         internal void ExecuteModification()
@@ -61,6 +49,39 @@ namespace NPTP.UnitySourceGen.Editor.Modifiable
                 return;
             
             scriptLines.Insert(0, new Alias(alias, originalType));
+        }
+
+        internal void PutCodeChunkInRegion(string regionName, GeneratableCodeChunk codeChunk, bool replaceExistingCodeInRegion)
+        {
+            int regionStartLineIndex = -1;
+            int regionEndLineIndex = -1;
+            
+            for (int i = 0; i < scriptLines.Count; i++)
+            {
+                string scriptLine = scriptLines[i];
+                if (scriptLine.ContainsAll("#region", regionName))
+                    regionStartLineIndex = i;
+                else if (scriptLine.Contains("#endregion"))
+                    regionEndLineIndex = i;
+                
+                if (regionStartLineIndex >= 0 && regionEndLineIndex > 0)
+                    break;
+            }
+
+            if (regionStartLineIndex == -1 || regionEndLineIndex == -1)
+            {
+                return;
+            }
+
+            int regionInteriorStartIndex = regionStartLineIndex + 1;
+            
+            if (replaceExistingCodeInRegion && regionEndLineIndex > regionStartLineIndex + 1)
+            {
+                scriptLines.RemoveRange(regionInteriorStartIndex, regionEndLineIndex - regionInteriorStartIndex);
+            }
+
+            codeChunk.Indent = scriptLines[regionInteriorStartIndex].GetIndentLevel();
+            scriptLines.InsertRange(regionInteriorStartIndex, codeChunk.GenerateStringRepresentationLines());
         }
     }
 }

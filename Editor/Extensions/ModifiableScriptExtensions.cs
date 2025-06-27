@@ -1,4 +1,5 @@
 using System;
+using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Modifiable;
 using UnityEditor;
 
@@ -24,6 +25,12 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         {
             mod.ExecuteModification();
             if (refreshAssets) AssetDatabase.Refresh();
+            return mod;
+        }
+
+        public static ModifiableScript<T> PutCodeChunkInRegion<T>(this ModifiableScript<T> mod, string regionName, GeneratableCodeChunk codeChunk, bool replaceExistingCodeInRegion)
+        {
+            mod.PutCodeChunkInRegion(regionName, codeChunk, replaceExistingCodeInRegion);
             return mod;
         }
     }

@@ -37,7 +37,7 @@ namespace NPTP.UnitySourceGen.Editor.ScriptWriting
                             lines.Add(line);
                             if (line.ContainsAll(sectionStartMarkers))
                             {
-                                codeChunk.Indent = GetIndentLevel(line);
+                                codeChunk.Indent = line.GetIndentLevel();
                                 lines.AddRange(codeChunk.GenerateStringRepresentationLines());
                                 replaceState = ReplaceState.WaitingForEndMarker;
                             }
@@ -92,32 +92,6 @@ namespace NPTP.UnitySourceGen.Editor.ScriptWriting
             }
         }
         
-        private static int GetIndentLevel(string line)
-        {
-            if (string.IsNullOrEmpty(line))
-                return 0;
-
-            int whitespaceLength = line.Length - line.TrimStart().Length;
-            if (whitespaceLength == 0)
-                return 0;
-
-            string whitespace = line.Substring(0, whitespaceLength);
-            int tabs = 0;
-            int spaces = 0;
-            for (int i = 0; i < whitespace.Length; i++)
-            {
-                switch (whitespace[i])
-                {
-                    case ' ':
-                        spaces++;
-                        break;
-                    case '\t':
-                        tabs++;
-                        break;
-                }
-            }
-
-            return tabs + (int)Math.Ceiling((decimal)(spaces / 4));
-        }
+        
     }
 }
