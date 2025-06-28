@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Extensions;
-using NPTP.UnitySourceGen.Editor.Options;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -22,9 +21,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         protected AccessModifier AccessModifier { get; }
         public bool IsStatic { get; }
 
-        protected GeneratableBase(NameSyntax nameSyntax, AccessModifier accessModifier, bool isStatic)
+        protected GeneratableBase(string name, AccessModifier accessModifier, bool isStatic)
         {
-            Name = nameSyntax.GetName();
+            Name = name;
             AccessModifier = accessModifier;
             IsStatic = isStatic;
         }

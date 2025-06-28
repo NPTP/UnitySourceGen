@@ -1,6 +1,10 @@
 # Unity Source Gen
 ## Changelog
 
+0.1.5
+- New features added to code chunks and modifiable scripts
+- Serialized property custom syntax fixed
+
 0.1.4
 - Refactor how to modify code in existing script, cleaner syntax and less steps
 

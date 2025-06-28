@@ -1,6 +1,6 @@
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
-using NPTP.UnitySourceGen.Editor.Options;
+using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Extensions
 {
@@ -30,58 +30,58 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier)
+        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier)
         {
-            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
+            if (!fieldName.CheckValidGenerationName()) return gen;
             gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: false));
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier, T initialValue)
+        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
         {
-            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
+            if (!fieldName.CheckValidGenerationName()) return gen;
             gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: false, initialValue));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier)
+        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier)
         {
-            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
+            if (!fieldName.CheckValidGenerationName()) return gen;
             gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: true));
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier, T initialValue)
+        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
         {
-            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
+            if (!fieldName.CheckValidGenerationName()) return gen;
             gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: true, initialValue));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, NameSyntax fieldName, AccessModifier accessModifier, T initialValue)
+        public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
         {
-            if (!ExtensionsCommon.CheckValidName(fieldName)) return gen;
+            if (!fieldName.CheckValidGenerationName()) return gen;
             gen.AddField(new GeneratableConstField<T>(fieldName, accessModifier, initialValue));
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithStaticMethod<T>(this GeneratableTypeDefinition gen, NameSyntax methodName, AccessModifier accessModifier, params string[] body)
+        public static GeneratableTypeDefinition WithStaticMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, params string[] body)
         {
-            if (!ExtensionsCommon.CheckValidName(methodName)) return gen;
+            if (!methodName.CheckValidGenerationName()) return gen;
             gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, InheritanceModifier.None, isStatic: true, body));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, NameSyntax methodName, AccessModifier accessModifier, params string[] body)
+        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, params string[] body)
         {
-            if (!ExtensionsCommon.CheckValidName(methodName)) return gen;
+            if (!methodName.CheckValidGenerationName()) return gen;
             gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, InheritanceModifier.None, isStatic: false, body));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, NameSyntax methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body)
+        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body)
         {
-            if (!ExtensionsCommon.CheckValidName(methodName)) return gen;
+            if (!methodName.CheckValidGenerationName()) return gen;
             gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, inheritanceModifier, isStatic: false, body));
             return gen;
         }

@@ -7,28 +7,41 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
 {
     public static class ModifiableScriptExtensions
     {
-        public static ModifiableScript<T> AddDirective<T>(this ModifiableScript<T> mod, string directive)
+        public static ModifiableScript RemoveLinesContaining(this ModifiableScript mod, string content)
         {
-            if (!ExtensionsCommon.CheckValidName(directive)) return mod;
+            mod.RemoveLinesContaining(content);
+            return mod;
+        }
+        
+        public static ModifiableScript AddDirective(this ModifiableScript mod, string directive)
+        {
+            if (!directive.CheckValidGenerationName()) return mod;
             mod.AddDirective(directive);
             return mod;
         }
         
-        public static ModifiableScript<T> AddAlias<T>(this ModifiableScript<T> mod, string alias, Type originalType)
+        public static ModifiableScript AddAlias(this ModifiableScript mod, string alias, Type originalType)
         {
-            if (!ExtensionsCommon.CheckValidName(alias)) return mod;
+            if (!alias.CheckValidGenerationName()) return mod;
             mod.AddAlias(alias, originalType);
             return mod;
         }
-
-        public static ModifiableScript<T> ExecuteModification<T>(this ModifiableScript<T> mod, bool refreshAssets)
+        
+        public static ModifiableScript AddComment(this ModifiableScript mod, string comment)
+        {
+            if (!comment.CheckValidGenerationName()) return mod;
+            mod.AddComment(comment);
+            return mod;
+        }
+        
+        public static void ExecuteModification(this ModifiableScript mod, bool refreshAssets)
         {
             mod.ExecuteModification();
             if (refreshAssets) AssetDatabase.Refresh();
-            return mod;
         }
 
-        public static ModifiableScript<T> PutCodeChunkInRegion<T>(this ModifiableScript<T> mod, string regionName, GeneratableCodeChunk codeChunk, bool replaceExistingCodeInRegion)
+        public static ModifiableScript PutCodeChunkInRegion(this ModifiableScript mod, string regionName,
+            bool replaceExistingCodeInRegion, GeneratableCodeChunk codeChunk)
         {
             mod.PutCodeChunkInRegion(regionName, codeChunk, replaceExistingCodeInRegion);
             return mod;

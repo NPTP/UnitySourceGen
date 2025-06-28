@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
-using NPTP.UnitySourceGen.Editor.Options;
+using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -11,11 +11,13 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         
         private static Type PropertyType => typeof(T);
 
-        private readonly string getterSyntax;
-        
-        internal GeneratableGetterProperty(NameSyntax nameSyntax, NameSyntax getterSyntax, AccessModifier getModifier, bool isStatic) : base(nameSyntax, getModifier, isStatic)
+        private readonly string fieldName;
+        private readonly CustomSyntax getterValueSyntax;
+
+        internal GeneratableGetterProperty(string name, string fieldName, AccessModifier getModifier, bool isStatic, CustomSyntax getterValueSyntax) : base(name, getModifier, isStatic)
         {
-            this.getterSyntax = getterSyntax.GetName();
+            this.fieldName = fieldName;
+            this.getterValueSyntax = getterValueSyntax;
         }
 
         public override string GenerateStringRepresentation()
@@ -27,7 +29,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             property.Append(SPACE + GetTypeName(PropertyType));
             property.Append(SPACE + Name);
             property.Append(SPACE + GETTER_ARROW);
-            property.Append(SPACE + getterSyntax);
+            property.Append(SPACE + getterValueSyntax.InSyntax(fieldName));
             property.Append(SEMICOLON);
 
             return property.ToString();

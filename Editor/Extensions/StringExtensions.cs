@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace NPTP.UnitySourceGen.Editor.Extensions
 {
@@ -69,6 +70,17 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             }
 
             return tabs + (int)Math.Ceiling((decimal)(spaces / 4));
+        }
+
+        internal static bool CheckValidGenerationName(this string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                Debug.LogWarning("Tried to add a null- or empty-named element to a generatable type definition.");
+                return false;
+            }
+            
+            return true;
         }
     }
 }

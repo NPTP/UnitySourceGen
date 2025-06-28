@@ -5,12 +5,13 @@ using System.Linq;
 using NPTP.UnitySourceGen.Editor.Extensions;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Generatable.Directives;
+using NPTP.UnitySourceGen.Editor.Generatable.Other;
 using NPTP.UnitySourceGen.Editor.ScriptWriting;
 using UnityEngine;
 
 namespace NPTP.UnitySourceGen.Editor.Modifiable
 {
-    public class ModifiableScript<T>
+    public class ModifiableScript
     {
         private readonly List<string> scriptLines;
         private readonly UnityAssetPath unityAssetPath;
@@ -48,9 +49,25 @@ namespace NPTP.UnitySourceGen.Editor.Modifiable
             if (scriptLines.Any(line => a.Matches(line)))
                 return;
             
-            scriptLines.Insert(0, new Alias(alias, originalType));
+            scriptLines.Insert(0, a);
+        }
+        
+        internal void AddComment(string comment)
+        {
+            scriptLines.Add(new Comment(comment));
         }
 
+        internal void RemoveLinesContaining(string content)
+        {
+            for (int i = 0; i < scriptLines.Count;)
+            {
+                if (scriptLines[i].Contains(content))
+                    scriptLines.RemoveAt(i);
+                else
+                    i++;
+            }
+        }
+        
         internal void PutCodeChunkInRegion(string regionName, GeneratableCodeChunk codeChunk, bool replaceExistingCodeInRegion)
         {
             int regionStartLineIndex = -1;

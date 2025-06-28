@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
-using NPTP.UnitySourceGen.Editor.Options;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
     public abstract class GeneratableMethod : GeneratableBase
     {
-        protected GeneratableMethod(NameSyntax nameSyntax, AccessModifier accessModifier, bool isStatic) : base(nameSyntax, accessModifier, isStatic) { }
+        protected GeneratableMethod(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
     }
     
     public class GeneratableMethod<T> : GeneratableMethod
@@ -16,7 +15,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         
         // TODO: Support parameters
         
-        internal GeneratableMethod(NameSyntax nameSyntax, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic, params string[] body) : base(nameSyntax, accessModifier, isStatic)
+        internal GeneratableMethod(string name, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic, params string[] body) : base(name, accessModifier, isStatic)
         {
             Body = body;
         }

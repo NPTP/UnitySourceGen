@@ -17,13 +17,13 @@ namespace NPTP.UnitySourceGen.Editor
         public static GeneratableEnum NewEnum(string name, AccessModifier accessModifier) => new GeneratableEnum(name, accessModifier);
         public static GeneratableCodeChunk NewCodeChunk() => new GeneratableCodeChunk(default, default, default);
         
-        public static ModifiableScript<T> GetScriptToModify<T>()
+        public static ModifiableScript GetScriptToModify<T>()
         {
             if (AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets(typeof(T), out UnityAssetPath unityAssetPath))
             {
                 try
                 { 
-                    return new ModifiableScript<T>(File.ReadAllLines(unityAssetPath.SystemPath).ToList(), unityAssetPath);
+                    return new ModifiableScript(File.ReadAllLines(unityAssetPath.SystemPath).ToList(), unityAssetPath);
                 }
                 catch (Exception e)
                 {

@@ -39,11 +39,15 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             
             return sb.ToString();
         }
-
-        public GeneratableCodeChunk AddEmptyLine()
+        
+        internal void AddEmptyLine()
         {
             Members.Add(new GeneratableEmptyMember());
-            return this;
+        }
+        
+        internal void AddComment(GeneratableComment comment)
+        {
+            Members.Add(comment);
         }
 
         internal void AddField(GeneratableField field) => Members.Add(field);

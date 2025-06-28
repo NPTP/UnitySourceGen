@@ -1,6 +1,5 @@
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
-using NPTP.UnitySourceGen.Editor.Options;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -8,7 +7,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     {
         private const string CONST = "const";
         
-        internal GeneratableConstField(NameSyntax nameSyntax, AccessModifier accessModifier, T initialValue) : base(nameSyntax, accessModifier, isStatic: false, initialValue) { }
+        internal GeneratableConstField(string name, AccessModifier accessModifier, T initialValue) : base(name, accessModifier, isStatic: false, initialValue) { }
         
         protected override void PrependAdditionalLabels(StringBuilder fieldStringBuilder)
         {
