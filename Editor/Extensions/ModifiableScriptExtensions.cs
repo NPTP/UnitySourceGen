@@ -13,14 +13,14 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return mod;
         }
         
-        public static ModifiableScript AddDirective(this ModifiableScript mod, string directive)
+        public static ModifiableScript WithDirective(this ModifiableScript mod, string directive)
         {
             if (!directive.CheckValidGenerationName()) return mod;
             mod.AddDirective(directive);
             return mod;
         }
         
-        public static ModifiableScript AddAlias(this ModifiableScript mod, string alias, Type originalType)
+        public static ModifiableScript WithAlias(this ModifiableScript mod, string alias, Type originalType)
         {
             if (!alias.CheckValidGenerationName()) return mod;
             mod.AddAlias(alias, originalType);
