@@ -40,7 +40,7 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             if (refreshAssets) AssetDatabase.Refresh();
         }
 
-        public static ModifiableScript PutCodeChunkInRegion(this ModifiableScript mod, string regionName,
+        public static ModifiableScript InsertCodeChunkInRegion(this ModifiableScript mod, string regionName,
             bool replaceExistingCodeInRegion, GeneratableCodeChunk codeChunk)
         {
             mod.PutCodeChunkInRegion(regionName, codeChunk, replaceExistingCodeInRegion);
