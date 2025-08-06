@@ -1,4 +1,5 @@
 using NPTP.UnitySourceGen.Editor.Extensions;
+using NPTP.UnitySourceGen.Editor.Extensions.Internal;
 
 namespace NPTP.UnitySourceGen.Editor.Syntax
 {

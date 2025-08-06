@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Extensions;
+using NPTP.UnitySourceGen.Editor.Extensions.Internal;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {

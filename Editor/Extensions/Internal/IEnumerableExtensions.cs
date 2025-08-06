@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NPTP.UnitySourceGen.Editor.Extensions
+namespace NPTP.UnitySourceGen.Editor.Extensions.Internal
 {
-    public static class IEnumerableExtensions
+    internal static class IEnumerableExtensions
     {
-        public static void ForEach<T>(this IEnumerable<T> iEnumerable, Action<T> action)
+        internal static void ForEach<T>(this IEnumerable<T> iEnumerable, Action<T> action)
         {
             foreach (T variable in iEnumerable)
             {
@@ -14,7 +14,7 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             }
         }
 
-        public static string LinesToString(this IEnumerable<string> lines)
+        internal static string LinesToString(this IEnumerable<string> lines)
         {
             StringBuilder sb = new();
             foreach (string line in lines)
