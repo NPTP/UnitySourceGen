@@ -1,6 +1,9 @@
 # Unity Source Gen
 ## Changelog
 
+0.1.6
+- Make some methods `internal` which shouldn't have been visible to other assemblies
+
 0.1.5
 - New features added to code chunks and modifiable scripts
 - Serialized property custom syntax fixed
