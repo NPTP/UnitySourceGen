@@ -78,9 +78,24 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         /// <summary>
         /// Methods can be overloaded, so name alone is not enough to tell two of them apart. Parameter
         /// types and generic arity are what C# overload resolution uses, so they are what is compared here.
+        /// <para>
+        /// A constructor, a conversion operator and a plain method can all share a name and parameter list
+        /// while being different members, so what kind of member this is has to be part of the key too.
+        /// </para>
         /// </summary>
         internal override string DedupeKey =>
-            $"{Name}`{typeParameters.Count}({string.Join(COMMA, parameters.Select(parameter => parameter.TypeName))})";
+            $"{DedupeKind}{Name}`{typeParameters.Count}({string.Join(COMMA, parameters.Select(parameter => parameter.TypeName))})";
+
+        private string DedupeKind
+        {
+            get
+            {
+                if (isConstructor) return "ctor ";
+                if (conversionKeyword != null) return conversionKeyword + SPACE + OPERATOR + SPACE;
+                if (!string.IsNullOrEmpty(explicitInterface.Name) && !explicitInterface.IsVoid) return explicitInterface.Name + ".";
+                return string.Empty;
+            }
+        }
 
         #region Signature
 
