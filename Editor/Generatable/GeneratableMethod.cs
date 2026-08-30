@@ -40,6 +40,13 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal GeneratableMethod(string name) : base(name, AccessModifier.Private, isStatic: false) { }
 
+        /// <summary>
+        /// Methods can be overloaded, so name alone is not enough to tell two of them apart. Parameter
+        /// types and generic arity are what C# overload resolution uses, so they are what is compared here.
+        /// </summary>
+        internal override string DedupeKey =>
+            $"{Name}`{typeParameters.Count}({string.Join(COMMA, parameters.Select(parameter => parameter.TypeName))})";
+
         #region Signature
 
         public GeneratableMethod Returning(TypeRef type)

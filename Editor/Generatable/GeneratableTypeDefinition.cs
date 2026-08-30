@@ -247,7 +247,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         private void Add<T>(T generatable, List<T> generatableList) where T : GeneratableBase
         {
-            if (generatable == null || generatableList.Any(existing => generatable.Name == existing.Name))
+            if (generatable == null || generatableList.Any(existing => generatable.DedupeKey == existing.DedupeKey))
             {
                 return;
             }

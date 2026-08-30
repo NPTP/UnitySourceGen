@@ -21,6 +21,13 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal string Name { get; }
 
+        /// <summary>
+        /// Identifies the member for duplicate detection. Name alone is right for fields, properties and
+        /// events, which cannot be overloaded; methods override this to include their signature so that
+        /// genuine overloads are not silently dropped.
+        /// </summary>
+        internal virtual string DedupeKey => Name;
+
         private List<AddableAttribute> attributes;
 
         protected bool HasAttributes => attributes is { Count: > 0 };

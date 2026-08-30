@@ -57,6 +57,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         public static GeneratableParameter Params(TypeRef arrayParameterType, string name) =>
             new(arrayParameterType, name, ParameterModifier.Params, null);
 
+        /// <summary>The parameter''s type name, used to tell overloads apart.</summary>
+        internal string TypeName => parameterType.Name;
+
         public string GetStringRepresentation()
         {
             string modifierText = modifier.AsString();
