@@ -169,7 +169,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         #endregion
 
         /// <summary>
-        /// The namespaces of every type named by this type''s members, so the containing file can add the
+        /// The namespaces of every type named by this type's members, so the containing file can add the
         /// using directives they need. Types named as raw strings are not included: a string carries no
         /// namespace, so those directives still have to be added by hand.
         /// </summary>

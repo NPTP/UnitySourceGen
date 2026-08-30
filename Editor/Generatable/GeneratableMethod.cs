@@ -113,7 +113,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         /// <summary>
         /// Write this as a constructor of the type it belongs to: no return type, and the name is the
-        /// type''s own name. Pass base constructor arguments to chain, e.g. ": base(id, asset)".
+        /// type's own name. Pass base constructor arguments to chain, e.g. ": base(id, asset)".
         /// </summary>
         public GeneratableMethod AsConstructor(string baseArguments = null)
         {
