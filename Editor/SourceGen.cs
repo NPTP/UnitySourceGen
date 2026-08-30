@@ -2,42 +2,48 @@ using System;
 using System.IO;
 using System.Linq;
 using NPTP.UnitySourceGen.Editor.Enums;
-using NPTP.UnitySourceGen.Editor.Extensions;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Modifiable;
 using NPTP.UnitySourceGen.Editor.ScriptWriting;
+using NPTP.UnitySourceGen.Editor.Syntax;
 using UnityEngine;
 
 namespace NPTP.UnitySourceGen.Editor
 {
+    /// <summary>
+    /// Entry point for source generation. Everything is created here and then configured fluently on
+    /// itself, e.g.
+    /// <code>
+    /// SourceGen.WriteToPath("Assets/MyGame.Generated/ISW.cs",
+    ///     SourceGen.NewStaticClass("ISW", AccessModifier.Public)
+    ///         .InNamespace("MyGame")
+    ///         .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning("InputPlayer")
+    ///             .Taking(GeneratableParameter.Of&lt;int&gt;("playerID"))
+    ///             .Expression("Runtime.GetPlayer(playerID)")));
+    /// </code>
+    /// </summary>
     public static class SourceGen
     {
-        public static GeneratableClass NewClass(string name, AccessModifier accessModifier) => new GeneratableClass(name, accessModifier, isStatic: false);
-        public static GeneratableClass NewStaticClass(string name, AccessModifier accessModifier) => new GeneratableClass(name, accessModifier, isStatic: true);
-        public static GeneratableEnum NewEnum(string name, AccessModifier accessModifier) => new GeneratableEnum(name, accessModifier);
-        public static GeneratableCodeChunk NewCodeChunk() => new GeneratableCodeChunk(default, default, default);
+        #region Creation
 
-        /// <summary>
-        /// A file that can hold several types, across several namespaces if needed.
-        /// </summary>
-        public static GeneratableFile NewFile() => new GeneratableFile();
+        public static GeneratableClass NewClass(string name, AccessModifier accessModifier) => new(name, accessModifier, isStatic: false);
+        public static GeneratableClass NewStaticClass(string name, AccessModifier accessModifier) => new(name, accessModifier, isStatic: true);
+        public static GeneratableStruct NewStruct(string name, AccessModifier accessModifier) => new(name, accessModifier);
+        public static GeneratableEnum NewEnum(string name, AccessModifier accessModifier) => new(name, accessModifier);
 
-        public static ModifiableScript GetScriptToModify<T>()
-        {
-            if (AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets(typeof(T), out UnityAssetPath unityAssetPath))
-            {
-                try
-                {
-                    return new ModifiableScript(File.ReadAllLines(unityAssetPath.SystemPath).ToList(), unityAssetPath);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"Could not read script: {e.Message}");
-                }
-            }
+        public static GeneratableMethod NewMethod(string name) => new(name);
+        public static GeneratableEvent NewEvent(string name) => new(name);
+        public static GeneratableField NewField(string name, TypeRef fieldType) => new(name, fieldType);
+        public static GeneratableProperty NewProperty(string name, TypeRef propertyType) => new(name, propertyType);
 
-            return null;
-        }
+        public static GeneratableCodeChunk NewCodeChunk() => new();
+
+        /// <summary>A file that can hold several types, across several namespaces if needed.</summary>
+        public static GeneratableFile NewFile() => new();
+
+        #endregion
+
+        #region Writing
 
         /// <summary>
         /// Write any generatable - class, struct or enum - to a path inside the project's Assets folder,
@@ -60,18 +66,7 @@ namespace NPTP.UnitySourceGen.Editor
             return ScriptWriter.Write(new UnityAssetPath(pathInsideAssets), generatable.GenerateStringRepresentation());
         }
 
-        /// <summary>
-        /// Write raw file contents to a path inside the project's Assets folder, for anything the
-        /// generatable types do not cover yet.
-        /// </summary>
-        public static ScriptWriteResult WriteToPath(string pathInsideAssets, string contents)
-        {
-            return ScriptWriter.Write(new UnityAssetPath(pathInsideAssets), contents);
-        }
-
-        /// <summary>
-        /// Write a multi-type file to a path inside the project's Assets folder.
-        /// </summary>
+        /// <summary>Write a multi-type file to a path inside the project's Assets folder.</summary>
         public static ScriptWriteResult WriteToPath(string pathInsideAssets, GeneratableFile generatableFile)
         {
             if (generatableFile == null)
@@ -83,14 +78,13 @@ namespace NPTP.UnitySourceGen.Editor
             return ScriptWriter.Write(new UnityAssetPath(pathInsideAssets), generatableFile.GenerateStringRepresentation());
         }
 
-        public static bool WriteClassToAssetsScriptFile<T>(string pathInsideAssets, GeneratableClass generatableClass)
+        /// <summary>
+        /// Write raw file contents to a path inside the project's Assets folder, for anything the
+        /// generatable types do not cover yet.
+        /// </summary>
+        public static ScriptWriteResult WriteToPath(string pathInsideAssets, string contents)
         {
-            if (!AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets<T>(out UnityAssetPath unityAssetPath))
-            {
-                return false;
-            }
-
-            return ScriptWriter.TryWrite(unityAssetPath, generatableClass.GenerateStringRepresentation());
+            return ScriptWriter.Write(new UnityAssetPath(pathInsideAssets), contents);
         }
 
         public static bool ReplaceClassInAssetsScriptFile(Type classType, GeneratableClass generatableClass)
@@ -98,5 +92,28 @@ namespace NPTP.UnitySourceGen.Editor
             generatableClass.InNamespace(classType.Namespace);
             return ScriptWriter.TryReplaceClass(classType, generatableClass);
         }
+
+        #endregion
+
+        #region Modification
+
+        public static ModifiableScript GetScriptToModify<T>()
+        {
+            if (AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets(typeof(T), out UnityAssetPath unityAssetPath))
+            {
+                try
+                {
+                    return new ModifiableScript(File.ReadAllLines(unityAssetPath.SystemPath).ToList(), unityAssetPath);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Could not read script: {e.Message}");
+                }
+            }
+
+            return null;
+        }
+
+        #endregion
     }
 }

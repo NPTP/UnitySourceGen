@@ -4,6 +4,10 @@ using NPTP.UnitySourceGen.Editor.Enums;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
+    /// <summary>
+    /// A top-level type that can stand alone in a file: it owns the using directives and namespace written
+    /// around it. Concrete types re-declare the placement methods so that chaining keeps their own type.
+    /// </summary>
     public abstract class GeneratableDefinition : GeneratableBase
     {
         // TODO: Adding directives, fields, types etc should auto-add directives
@@ -11,6 +15,29 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         internal string Namespace { get; set; }
 
         internal GeneratableDefinition(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
+
+        public GeneratableDefinition InNamespace(string @namespace)
+        {
+            Namespace = @namespace;
+            return this;
+        }
+
+        /// <summary>Write like WithDirective("UnityEngine"), rather than WithDirective("using UnityEngine;").</summary>
+        public GeneratableDefinition WithDirective(string directive)
+        {
+            Directives.Add(directive);
+            return this;
+        }
+
+        public GeneratableDefinition WithDirectives(params string[] directives)
+        {
+            if (directives != null)
+            {
+                foreach (string directive in directives) Directives.Add(directive);
+            }
+
+            return this;
+        }
 
         /// <summary>
         /// Append just this type - its signature, braces and members - at the given indent, without any

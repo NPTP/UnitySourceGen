@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
-using NPTP.UnitySourceGen.Editor.Extensions;
 using System.Linq;
 using NPTP.UnitySourceGen.Editor.Extensions.Internal;
 using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
-using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -45,8 +43,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             if (HasConditionalCompilation) sb.Append("#endif");
         }
 
-        protected AccessModifier AccessModifier { get; }
-        public bool IsStatic { get; }
+        // Settable so that each generatable can configure itself fluently after construction.
+        protected AccessModifier AccessModifier { get; set; }
+        public bool IsStatic { get; protected set; }
 
         protected GeneratableBase(string name, AccessModifier accessModifier, bool isStatic)
         {
@@ -121,28 +120,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return tab.ToString();
         }
 
-        protected static string GetValueAsString<TValue>(Type type, TValue value)
-        {
-            StringBuilder sb = new();
-            string left = string.Empty;
-            string right = string.Empty;
-
-            if (type == typeof(string))
-            {
-                left = right = "\"";
-            }
-            else if (type == typeof(float))
-            {
-                right = "f";
-            }
-
-            sb.Append(left);
-            sb.Append(value);
-            sb.Append(right);
-
-            return sb.ToString();
-        }
-
         protected void AddLine(StringBuilder sb, int indent, string line) => sb.AppendLine(Tab(indent) + line);
 
         protected void AddLines(StringBuilder sb, int indent, IEnumerable<string> lines) => lines.ForEach(line => AddLine(sb, indent, line));
@@ -152,11 +129,5 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         protected void AddOpenBrace(StringBuilder sb, int indent) => AddLine(sb, indent, OPEN_BRACE);
 
         protected void AddCloseBrace(StringBuilder sb, int indent) => AddLine(sb, indent, CLOSE_BRACE);
-
-        /// <summary>
-        /// Kept for convenience. <see cref="TypeRef"/> is the general form, and is the only way to name a
-        /// type that does not exist yet, such as another type being generated in the same run.
-        /// </summary>
-        protected static string GetTypeName(Type type) => TypeRef.From(type).Name;
     }
 }

@@ -4,14 +4,52 @@ using NPTP.UnitySourceGen.Editor.Enums;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
+    /// <summary>
+    /// A loose run of members with no type around them, for dropping into an existing script's region.
+    /// Members are written in the order added.
+    /// </summary>
     public class GeneratableCodeChunk : GeneratableBase
     {
         private List<GeneratableBase> Members { get; } = new();
 
         internal int Indent { get; set; }
 
-        internal GeneratableCodeChunk(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic)
+        internal GeneratableCodeChunk() : base(name: string.Empty, AccessModifier.Private, isStatic: false) { }
+
+        public GeneratableCodeChunk WithField(GeneratableField field)
         {
+            if (field != null) Members.Add(field);
+            return this;
+        }
+
+        public GeneratableCodeChunk WithEvent(GeneratableEvent generatableEvent)
+        {
+            if (generatableEvent != null) Members.Add(generatableEvent);
+            return this;
+        }
+
+        public GeneratableCodeChunk WithProperty(GeneratableProperty property)
+        {
+            if (property != null) Members.Add(property);
+            return this;
+        }
+
+        public GeneratableCodeChunk WithMethod(GeneratableMethod method)
+        {
+            if (method != null) Members.Add(method);
+            return this;
+        }
+
+        public GeneratableCodeChunk WithComment(string comment)
+        {
+            if (!string.IsNullOrEmpty(comment)) Members.Add(new GeneratableComment(comment));
+            return this;
+        }
+
+        public GeneratableCodeChunk WithEmptyLine()
+        {
+            Members.Add(new GeneratableEmptyMember());
+            return this;
         }
 
         public override string GenerateStringRepresentation()
@@ -22,40 +60,16 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             {
                 switch (member)
                 {
-                    case GeneratableField field:
-                        AddLine(sb, Indent, field.GenerateStringRepresentation());
-                        break;
-                    case GeneratableEvent generatableEvent:
-                        AddLine(sb, Indent, generatableEvent.GenerateStringRepresentation());
-                        break;
-                    case GeneratableProperty property:
-                        AddLine(sb, Indent, property.GenerateStringRepresentation());
-                        break;
                     case GeneratableMethod method:
                         AddLines(sb, Indent, method.GenerateStringRepresentationLines());
                         break;
-                    case GeneratableEmptyMember emptyMember:
-                        AddLine(sb, Indent, emptyMember.GenerateStringRepresentation());
+                    default:
+                        AddLine(sb, Indent, member.GenerateStringRepresentation());
                         break;
                 }
             }
 
             return sb.ToString();
         }
-
-        internal void AddEmptyLine()
-        {
-            Members.Add(new GeneratableEmptyMember());
-        }
-
-        internal void AddComment(GeneratableComment comment)
-        {
-            Members.Add(comment);
-        }
-
-        internal void AddField(GeneratableField field) => Members.Add(field);
-        internal void AddEvent(GeneratableEvent generatableEvent) => Members.Add(generatableEvent);
-        internal void AddProperty(GeneratableProperty property) => Members.Add(property);
-        internal void AddMethod(GeneratableMethod method) => Members.Add(method);
     }
 }

@@ -2,20 +2,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
+using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
+    /// <summary>
+    /// A generated class or struct, configured fluently on itself:
+    /// <code>
+    /// SourceGen.NewStaticClass("ISW", AccessModifier.Public)
+    ///     .InNamespace("MyGame")
+    ///     .WithDirectives("System", "UnityEngine")
+    ///     .WithMethod(SourceGen.NewMethod("Initialize").Private().Static().Body("..."))
+    /// </code>
+    /// </summary>
     public abstract class GeneratableTypeDefinition : GeneratableDefinition
     {
         private const string PARTIAL = "partial";
 
         protected abstract TypeDefinition TypeDefinition { get; }
 
-        internal InheritanceModifier InheritanceModifier { get; set; }
-        internal bool IsPartial { get; set; }
-        private bool hasBaseClassInheritance;
-        internal string BaseClassTypeName { get; set; }
-        internal SortedSet<string> ImplementsInterfaces { get; } = new();
+        private InheritanceModifier inheritanceModifier;
+        private bool isPartial;
+        private string baseClassTypeName;
+        private SortedSet<string> ImplementsInterfaces { get; } = new();
 
         // TODO: Adding fields or properties with the same name should override any existing ones
         private List<GeneratableField> Fields { get; } = new();
@@ -24,6 +34,131 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private List<GeneratableMethod> Methods { get; } = new();
 
         internal GeneratableTypeDefinition(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
+
+        #region File Placement
+
+        public new GeneratableTypeDefinition InNamespace(string @namespace)
+        {
+            Namespace = @namespace;
+            return this;
+        }
+
+        /// <summary>Write like WithDirective("UnityEngine"), rather than WithDirective("using UnityEngine;").</summary>
+        public new GeneratableTypeDefinition WithDirective(string directive)
+        {
+            Directives.Add(directive);
+            return this;
+        }
+
+        public new GeneratableTypeDefinition WithDirectives(params string[] directives)
+        {
+            if (directives != null)
+            {
+                foreach (string directive in directives) Directives.Add(directive);
+            }
+
+            return this;
+        }
+
+        #endregion
+
+        #region Declaration
+
+        public GeneratableTypeDefinition WithAccess(AccessModifier modifier)
+        {
+            AccessModifier = modifier;
+            return this;
+        }
+
+        public GeneratableTypeDefinition Public() => WithAccess(AccessModifier.Public);
+        public GeneratableTypeDefinition Private() => WithAccess(AccessModifier.Private);
+        public GeneratableTypeDefinition Protected() => WithAccess(AccessModifier.Protected);
+        public GeneratableTypeDefinition Internal() => WithAccess(AccessModifier.Internal);
+
+        public GeneratableTypeDefinition WithInheritanceModifier(InheritanceModifier modifier)
+        {
+            inheritanceModifier = modifier;
+            return this;
+        }
+
+        public GeneratableTypeDefinition AsPartial()
+        {
+            isPartial = true;
+            return this;
+        }
+
+        public GeneratableTypeDefinition InheritsFrom(TypeRef baseType)
+        {
+            baseClassTypeName = baseType.Name;
+            return this;
+        }
+
+        public GeneratableTypeDefinition InheritsFrom<T>() => InheritsFrom(TypeRef.From(typeof(T)));
+
+        public GeneratableTypeDefinition ImplementsInterface(TypeRef interfaceType)
+        {
+            ImplementsInterfaces.Add(interfaceType.Name);
+            return this;
+        }
+
+        public GeneratableTypeDefinition ImplementsInterface<T>() where T : class => ImplementsInterface(TypeRef.From(typeof(T)));
+
+        /// <summary>An attribute on the type itself, written on its own line above the signature.</summary>
+        public GeneratableTypeDefinition WithAttribute(AddableAttribute attribute)
+        {
+            AddAttribute(attribute);
+            return this;
+        }
+
+        public GeneratableTypeDefinition WithAttribute(string attributeName, params string[] arguments) =>
+            WithAttribute(new AddableAttribute(attributeName, arguments));
+
+        /// <summary>Wrap the whole type in "#if SYMBOL" / "#endif".</summary>
+        public GeneratableTypeDefinition OnlyIf(string conditionalCompilationSymbol)
+        {
+            ConditionalCompilationSymbol = conditionalCompilationSymbol;
+            return this;
+        }
+
+        #endregion
+
+        #region Members
+
+        public GeneratableTypeDefinition WithField(GeneratableField field)
+        {
+            Add(field, Fields);
+            return this;
+        }
+
+        public GeneratableTypeDefinition WithEvent(GeneratableEvent generatableEvent)
+        {
+            Add(generatableEvent, Events);
+            return this;
+        }
+
+        public GeneratableTypeDefinition WithProperty(GeneratableProperty property)
+        {
+            Add(property, Properties);
+            return this;
+        }
+
+        public GeneratableTypeDefinition WithMethod(GeneratableMethod method)
+        {
+            Add(method, Methods);
+            return this;
+        }
+
+        public GeneratableTypeDefinition WithMethods(params GeneratableMethod[] methods)
+        {
+            if (methods != null)
+            {
+                foreach (GeneratableMethod method in methods) Add(method, Methods);
+            }
+
+            return this;
+        }
+
+        #endregion
 
         internal override void AppendTypeDeclaration(StringBuilder sb, int indent)
         {
@@ -55,30 +190,26 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             StringBuilder classSignature = new();
 
             classSignature.Append(AccessModifier.AsString());
-            if (InheritanceModifier != InheritanceModifier.None) classSignature.Append(SPACE + InheritanceModifier.AsString());
-            if (IsPartial) classSignature.Append(SPACE + PARTIAL);
+            if (IsStatic) classSignature.Append(SPACE + STATIC);
+            if (inheritanceModifier != InheritanceModifier.None) classSignature.Append(SPACE + inheritanceModifier.AsString());
+            if (isPartial) classSignature.Append(SPACE + PARTIAL);
             classSignature.Append(SPACE + TypeDefinition.AsString());
             classSignature.Append(SPACE + Name);
 
-            bool inheritsFromSomething = !string.IsNullOrEmpty(BaseClassTypeName);
+            bool inheritsFromSomething = !string.IsNullOrEmpty(baseClassTypeName);
             bool implementsInterfaces = ImplementsInterfaces.Count > 0;
             if (inheritsFromSomething || implementsInterfaces)
             {
                 classSignature.Append(SPACE + ":" + SPACE);
                 if (inheritsFromSomething)
                 {
-                    classSignature.Append(BaseClassTypeName);
+                    classSignature.Append(baseClassTypeName);
                     if (implementsInterfaces) classSignature.Append(COMMA + SPACE);
                 }
 
                 if (implementsInterfaces)
                 {
-                    int i = 0;
-                    foreach (string implementsInterface in ImplementsInterfaces)
-                    {
-                        classSignature.Append(implementsInterface + (i < ImplementsInterfaces.Count - 1 ? COMMA + SPACE : string.Empty));
-                        i++;
-                    }
+                    classSignature.Append(string.Join(COMMA + SPACE, ImplementsInterfaces));
                 }
             }
 
@@ -114,14 +245,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             }
         }
 
-        internal void AddField(GeneratableField field) => Add(field, Fields);
-        internal void AddEvent(GeneratableEvent generatableEvent) => Add(generatableEvent, Events);
-        internal void AddProperty(GeneratableProperty property) => Add(property, Properties);
-        internal void AddMethod(GeneratableMethod method) => Add(method, Methods);
-
         private void Add<T>(T generatable, List<T> generatableList) where T : GeneratableBase
         {
-            if (generatableList.Any(generatableElement => generatable.Name == generatableElement.Name))
+            if (generatable == null || generatableList.Any(existing => generatable.Name == existing.Name))
             {
                 return;
             }

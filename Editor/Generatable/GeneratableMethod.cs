@@ -1,60 +1,162 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
 using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
+    /// <summary>
+    /// A generated method, configured fluently on itself:
+    /// <code>
+    /// SourceGen.NewMethod("GetPlayer")
+    ///     .Public().Static()
+    ///     .Returning("InputPlayer")
+    ///     .Taking(GeneratableParameter.Of&lt;int&gt;("playerID"))
+    ///     .Expression("Runtime.GetPlayer(playerID)")
+    /// </code>
+    /// Defaults match C#: private, non-static, returning void, with an empty body.
+    /// </summary>
     public class GeneratableMethod : GeneratableBase
     {
         private const string EXPRESSION_ARROW = "=>";
 
-        private readonly TypeRef returnType;
-        private readonly GeneratableParameter[] parameters;
-        private readonly GeneratableTypeParameter[] typeParameters;
+        private readonly List<GeneratableTypeParameter> typeParameters = new();
+        private readonly List<GeneratableParameter> parameters = new();
+        private readonly List<string> bodyLines = new();
+
+        private TypeRef returnType = TypeRef.Void;
 
         /// <summary>
         /// When set, the method explicitly implements this interface's member, so it is written as
         /// "ReturnType IInterface.Name(...)" with no access modifier - explicit implementations may not
         /// have one, and are never static.
         /// </summary>
-        private readonly TypeRef explicitInterface;
+        private TypeRef explicitInterface;
+
+        private InheritanceModifier inheritanceModifier = InheritanceModifier.None;
+        private bool isExpressionBodied;
+
+        internal GeneratableMethod(string name) : base(name, AccessModifier.Private, isStatic: false) { }
+
+        #region Signature
+
+        public GeneratableMethod Returning(TypeRef type)
+        {
+            returnType = type;
+            return this;
+        }
+
+        public GeneratableMethod Returning<T>() => Returning(TypeRef.From(typeof(T)));
+
+        public GeneratableMethod WithAccess(AccessModifier modifier)
+        {
+            AccessModifier = modifier;
+            return this;
+        }
+
+        public GeneratableMethod Public() => WithAccess(AccessModifier.Public);
+        public GeneratableMethod Private() => WithAccess(AccessModifier.Private);
+        public GeneratableMethod Protected() => WithAccess(AccessModifier.Protected);
+        public GeneratableMethod Internal() => WithAccess(AccessModifier.Internal);
+
+        public GeneratableMethod Static()
+        {
+            IsStatic = true;
+            return this;
+        }
+
+        public GeneratableMethod WithInheritanceModifier(InheritanceModifier modifier)
+        {
+            inheritanceModifier = modifier;
+            return this;
+        }
 
         /// <summary>
-        /// When true, <see cref="body"/> holds a single expression written after "=>" rather than the
-        /// statements of a block body.
+        /// Write this as an explicit interface implementation, e.g. "void IActionMapWrapper.Enable()".
+        /// Explicit implementations are only reachable through the interface, so they keep the member off
+        /// the type's own public surface. Any access modifier or static set here is ignored, since C# does
+        /// not allow either on an explicit implementation.
         /// </summary>
-        private readonly bool isExpressionBodied;
-
-        private readonly string[] body;
-
-        /// <param name="isExpressionBodied">
-        /// Pass true to write the method as "signature =&gt; expression;". The expression is taken from the
-        /// first entry of <paramref name="body"/>. This is an explicit flag rather than a separate
-        /// constructor overload, because a string overload would silently win over the params array for a
-        /// single-line block body.
-        /// </param>
-        internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
-            GeneratableParameter[] parameters, bool isExpressionBodied, params string[] body)
-            : this(name, returnType, accessModifier, inheritanceModifier, isStatic, GeneratableTypeParameter.None, parameters, isExpressionBodied, body) { }
-
-        internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
-            GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, bool isExpressionBodied, params string[] body)
-            : this(name, returnType, accessModifier, inheritanceModifier, isStatic, typeParameters, parameters, default, isExpressionBodied, body) { }
-
-        internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
-            GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, TypeRef explicitInterface, bool isExpressionBodied, params string[] body)
-            : base(name, accessModifier, isStatic)
+        public GeneratableMethod ExplicitlyImplementing(TypeRef interfaceType)
         {
-            this.explicitInterface = explicitInterface;
-            this.returnType = returnType;
-            this.typeParameters = typeParameters ?? GeneratableTypeParameter.None;
-            this.parameters = parameters ?? GeneratableParameter.None;
-            this.isExpressionBodied = isExpressionBodied;
-            this.body = body ?? Array.Empty<string>();
+            explicitInterface = interfaceType;
+            return this;
         }
+
+        public GeneratableMethod ExplicitlyImplementing<T>() where T : class => ExplicitlyImplementing(TypeRef.From(typeof(T)));
+
+        /// <summary>An attribute on the method, written on its own line above the signature.</summary>
+        public GeneratableMethod WithAttribute(AddableAttribute attribute)
+        {
+            AddAttribute(attribute);
+            return this;
+        }
+
+        public GeneratableMethod WithAttribute(string attributeName, params string[] arguments) =>
+            WithAttribute(new AddableAttribute(attributeName, arguments));
+
+        /// <summary>
+        /// Wrap the method in "#if SYMBOL" / "#endif", e.g. OnlyIf("UNITY_EDITOR") for a member that must
+        /// not reach a build.
+        /// </summary>
+        public GeneratableMethod OnlyIf(string conditionalCompilationSymbol)
+        {
+            ConditionalCompilationSymbol = conditionalCompilationSymbol;
+            return this;
+        }
+
+        #endregion
+
+        #region Generics And Parameters
+
+        public GeneratableMethod Generic(params GeneratableTypeParameter[] methodTypeParameters)
+        {
+            if (methodTypeParameters != null) typeParameters.AddRange(methodTypeParameters);
+            return this;
+        }
+
+        public GeneratableMethod Taking(params GeneratableParameter[] methodParameters)
+        {
+            if (methodParameters != null) parameters.AddRange(methodParameters);
+            return this;
+        }
+
+        /// <summary>
+        /// Makes this an extension method of the given type: the method becomes static and the "this"
+        /// parameter is placed first, ahead of anything added with <see cref="Taking"/>.
+        /// </summary>
+        public GeneratableMethod Extending(TypeRef extendedType, string parameterName)
+        {
+            IsStatic = true;
+            parameters.Insert(0, GeneratableParameter.Extension(extendedType, parameterName));
+            return this;
+        }
+
+        #endregion
+
+        #region Body
+
+        /// <summary>A block body, one statement per line.</summary>
+        public GeneratableMethod Body(params string[] lines)
+        {
+            isExpressionBodied = false;
+            bodyLines.Clear();
+            if (lines != null) bodyLines.AddRange(lines);
+            return this;
+        }
+
+        /// <summary>An expression-bodied method: "signature =&gt; expression;".</summary>
+        public GeneratableMethod Expression(string expression)
+        {
+            isExpressionBodied = true;
+            bodyLines.Clear();
+            bodyLines.Add(expression);
+            return this;
+        }
+
+        #endregion
 
         public override string GenerateStringRepresentation()
         {
@@ -68,7 +170,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             {
                 // Deliberately not AppendLine: a single-line member has no trailing newline, so it is not
                 // mistaken for a block with an empty last line when split back into lines.
-                string expression = body.Length > 0 ? body[0] : string.Empty;
+                string expression = bodyLines.Count > 0 ? bodyLines[0] : string.Empty;
                 sb.Append($"{BuildSignature()} {EXPRESSION_ARROW} {expression}{SEMICOLON}");
 
                 if (HasConditionalCompilation)
@@ -84,7 +186,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             AddOpenBrace(sb, indent);
 
             indent++;
-            foreach (string line in body) AddLine(sb, indent, line);
+            foreach (string line in bodyLines) AddLine(sb, indent, line);
             indent--;
 
             AddCloseBrace(sb, indent);
@@ -97,8 +199,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         {
             StringBuilder methodSignature = new();
 
-            // TODO: rework hierarchy of classes so methods can have an inheritance modifier, partial, etc.
-
             bool isExplicitImplementation = !string.IsNullOrEmpty(explicitInterface.Name) && !explicitInterface.IsVoid;
 
             if (isExplicitImplementation)
@@ -110,10 +210,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             {
                 methodSignature.Append(AccessModifier.AsString());
                 if (IsStatic) methodSignature.Append(SPACE + STATIC);
+                if (inheritanceModifier != InheritanceModifier.None) methodSignature.Append(SPACE + inheritanceModifier.AsString());
                 methodSignature.Append(SPACE + returnType.Name);
                 methodSignature.Append(SPACE + Name);
             }
-            if (typeParameters.Length > 0)
+
+            if (typeParameters.Count > 0)
             {
                 methodSignature.Append("<" + string.Join(COMMA + SPACE, typeParameters.Select(typeParameter => typeParameter.Name)) + ">");
             }
