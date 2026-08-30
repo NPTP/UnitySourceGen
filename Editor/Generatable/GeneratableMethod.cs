@@ -16,7 +16,14 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     ///     .Taking(GeneratableParameter.Of&lt;int&gt;("playerID"))
     ///     .Expression("Runtime.GetPlayer(playerID)")
     /// </code>
-    /// Defaults match C#: private, non-static, returning void, with an empty body.
+    /// Defaults match C#: private, non-static, returning void, with an empty body. Because "void" is not
+    /// a valid type argument, use <see cref="ReturningVoid"/> rather than Returning&lt;void&gt;().
+    /// <para>
+    /// The same type also covers constructors (<see cref="AsConstructor"/>), extension methods
+    /// (<see cref="Extending"/>), explicit interface implementations
+    /// (<see cref="ExplicitlyImplementing(Syntax.TypeRef)"/>), and generic methods with constraints
+    /// (<see cref="Generic"/>).
+    /// </para>
     /// </summary>
     public class GeneratableMethod : GeneratableBase
     {

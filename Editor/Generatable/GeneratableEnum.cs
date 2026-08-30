@@ -14,6 +14,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     ///     .WithMember("None", -1)
     ///     .WithMember("KeyboardMouse", 0)
     /// </code>
+    /// Prefer the explicit-value overload of <see cref="WithMember(string, int)"/> whenever generated code
+    /// casts between the enum and an int, so the mapping cannot drift when members are added or reordered.
+    /// <see cref="AsFlags"/> marks the enum [Flags] and adds the System directive it needs.
     /// </summary>
     public sealed class GeneratableEnum : GeneratableDefinition
     {

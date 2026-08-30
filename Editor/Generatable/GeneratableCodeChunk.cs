@@ -5,8 +5,16 @@ using NPTP.UnitySourceGen.Editor.Enums;
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
     /// <summary>
-    /// A loose run of members with no type around them, for dropping into an existing script's region.
-    /// Members are written in the order added.
+    /// A loose run of members with no type around them, for dropping into a region of an existing script
+    /// through <see cref="Modifiable.ModifiableScript"/>. Members are written in the order added, and the
+    /// chunk is indented to match the code already in the region.
+    /// <code>
+    /// SourceGen.NewCodeChunk()
+    ///     .WithComment("Generated - do not edit")
+    ///     .WithField(SourceGen.NewField("count", "int").Private())
+    ///     .WithEmptyLine()
+    ///     .WithMethod(SourceGen.NewMethod("Reset").Public().ReturningVoid().Body("count = 0;"));
+    /// </code>
     /// </summary>
     public class GeneratableCodeChunk : GeneratableBase
     {

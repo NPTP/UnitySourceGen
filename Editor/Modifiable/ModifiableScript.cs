@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NPTP.UnitySourceGen.Editor.Extensions;
 using NPTP.UnitySourceGen.Editor.Extensions.Internal;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Generatable.Directives;
@@ -12,6 +11,17 @@ using UnityEngine;
 
 namespace NPTP.UnitySourceGen.Editor.Modifiable
 {
+    /// <summary>
+    /// An existing script, opened for editing in place rather than regenerated from scratch. Use this when
+    /// only part of a file is generated and the rest is hand-written.
+    /// <code>
+    /// SourceGen.GetScriptToModify&lt;MyClass&gt;()
+    ///     .WithDirective("UnityEngine")
+    ///     .WithCodeChunkInRegion("Generated", chunk, replaceExistingCodeInRegion: true)
+    ///     .ExecuteModification(refreshAssets: true);
+    /// </code>
+    /// Nothing is written to disk until ExecuteModification is called.
+    /// </summary>
     public class ModifiableScript
     {
         private readonly List<string> scriptLines;

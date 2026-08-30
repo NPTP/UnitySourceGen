@@ -9,6 +9,15 @@ using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
+    /// <summary>
+    /// Anything that can be written into a generated file: a type, or a member of one. Everything shared
+    /// across all of them lives here - the name, access modifier, static-ness, attributes, conditional
+    /// compilation, and the indentation helpers used to render them.
+    /// <para>
+    /// Generatables are created through <see cref="SourceGen"/> and then configure themselves through
+    /// fluent methods, so there are no separate builder types and no extension classes to import.
+    /// </para>
+    /// </summary>
     public abstract class GeneratableBase
     {
         protected const string SPACE = " ";

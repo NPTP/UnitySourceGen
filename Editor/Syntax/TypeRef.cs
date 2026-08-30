@@ -17,6 +17,9 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
     /// TypeRef b = "PlayerActions";            // a type that is being generated right now
     /// TypeRef c = TypeRef.Generic("List", b); // "List&lt;PlayerActions&gt;"
     /// </code>
+    /// A TypeRef built from a real type also knows its <see cref="Namespace"/>, which is what lets a
+    /// generated file work out its own using directives. One built from a string cannot, so that directive
+    /// has to be added by hand with WithDirective.
     /// </summary>
     public readonly struct TypeRef : IEquatable<TypeRef>
     {

@@ -11,6 +11,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <code>
     /// SourceGen.NewField("playerID", "int").Private().WithInitialValue("0")
     /// SourceGen.NewField("actions", "GameplayActions").Serialized()
+    /// SourceGen.NewField("Max", "int").Public().Const("100")
+    /// SourceGen.NewField("wrappers", "Dictionary&lt;string, IActionMapWrapper&gt;").Private().ReadOnly()
     /// </code>
     /// </summary>
     public class GeneratableField : GeneratableBase

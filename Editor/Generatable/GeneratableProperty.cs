@@ -11,7 +11,10 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <code>
     /// SourceGen.NewProperty("Gameplay", "GameplayActions").Public().GetOnly()
     /// SourceGen.NewProperty("Gameplay", "GameplayActions").Public().Static().Expression("DefaultPlayer.Gameplay()")
+    /// SourceGen.NewProperty("Enabled", "bool").Public().WithAccessors("runtime.Enabled", "runtime.Enabled = value")
     /// </code>
+    /// Auto-property forms are <see cref="GetOnly"/>, <see cref="GetSet"/> and
+    /// <see cref="GetPrivateSet"/>; the others give the accessors an expression body.
     /// </summary>
     public class GeneratableProperty : GeneratableBase
     {
