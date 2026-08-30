@@ -75,7 +75,7 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         public static GeneratableCodeChunk AddStaticMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableParameter[] parameters, params string[] body)
         {
             if (!methodName.CheckValidGenerationName()) return gen;
-            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, parameters, body));
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, parameters, isExpressionBodied: false, body));
             return gen;
         }
 
@@ -91,7 +91,7 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         public static GeneratableCodeChunk AddMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, GeneratableParameter[] parameters, params string[] body)
         {
             if (!methodName.CheckValidGenerationName()) return gen;
-            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, inheritanceModifier, isStatic: false, parameters, body));
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, inheritanceModifier, isStatic: false, parameters, isExpressionBodied: false, body));
             return gen;
         }
 
@@ -129,6 +129,25 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
 
             gen.AddGetterProperty<T>(fieldName.UppercaseFirst(), fieldName, AccessModifier.Public, isStatic, getterValueSyntax ?? CustomSyntax.Default);
 
+            return gen;
+        }
+
+        #endregion
+
+        #region Expression Bodied
+
+        /// <summary>Writes "returnType Name(parameters) =&gt; expression;".</summary>
+        public static GeneratableCodeChunk AddExpressionBodiedMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableParameter[] parameters, string expression)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: false, parameters, isExpressionBodied: true, expression));
+            return gen;
+        }
+
+        public static GeneratableCodeChunk AddStaticExpressionBodiedMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableParameter[] parameters, string expression)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, parameters, isExpressionBodied: true, expression));
             return gen;
         }
 

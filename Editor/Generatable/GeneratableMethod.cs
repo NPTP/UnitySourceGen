@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,30 +9,53 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 {
     public class GeneratableMethod : GeneratableBase
     {
+        private const string EXPRESSION_ARROW = "=>";
+
         private readonly TypeRef returnType;
         private readonly GeneratableParameter[] parameters;
 
-        private IEnumerable<string> Body { get; }
+        /// <summary>
+        /// When true, <see cref="body"/> holds a single expression written after "=>" rather than the
+        /// statements of a block body.
+        /// </summary>
+        private readonly bool isExpressionBodied;
 
+        private readonly string[] body;
+
+        /// <param name="isExpressionBodied">
+        /// Pass true to write the method as "signature =&gt; expression;". The expression is taken from the
+        /// first entry of <paramref name="body"/>. This is an explicit flag rather than a separate
+        /// constructor overload, because a string overload would silently win over the params array for a
+        /// single-line block body.
+        /// </param>
         internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
-            GeneratableParameter[] parameters, params string[] body)
+            GeneratableParameter[] parameters, bool isExpressionBodied, params string[] body)
             : base(name, accessModifier, isStatic)
         {
             this.returnType = returnType;
             this.parameters = parameters ?? GeneratableParameter.None;
-            Body = body;
+            this.isExpressionBodied = isExpressionBodied;
+            this.body = body ?? Array.Empty<string>();
         }
 
         public override string GenerateStringRepresentation()
         {
+            if (isExpressionBodied)
+            {
+                // Deliberately not AppendLine: a single-line member has no trailing newline, so it is not
+                // mistaken for a block with an empty last line when split back into lines.
+                string expression = body.Length > 0 ? body[0] : string.Empty;
+                return $"{BuildSignature()} {EXPRESSION_ARROW} {expression}{SEMICOLON}";
+            }
+
             int indent = 0;
             StringBuilder sb = new();
 
-            AddMethodSignature(sb, indent);
+            AddLine(sb, indent, BuildSignature());
             AddOpenBrace(sb, indent);
 
             indent++;
-            AddBody(sb, indent);
+            foreach (string line in body) AddLine(sb, indent, line);
             indent--;
 
             AddCloseBrace(sb, indent);
@@ -39,7 +63,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return sb.ToString();
         }
 
-        private void AddMethodSignature(StringBuilder sb, int indent)
+        private string BuildSignature()
         {
             StringBuilder methodSignature = new();
 
@@ -51,15 +75,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             methodSignature.Append(SPACE + Name);
             methodSignature.Append("(" + string.Join(COMMA + SPACE, parameters.Select(parameter => parameter.GetStringRepresentation())) + ")");
 
-            AddLine(sb, indent, methodSignature.ToString());
-        }
-
-        private void AddBody(StringBuilder sb, int indent)
-        {
-            foreach (string line in Body)
-            {
-                AddLine(sb, indent, line);
-            }
+            return methodSignature.ToString();
         }
     }
 
@@ -71,6 +87,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     {
         internal GeneratableMethod(string name, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
             GeneratableParameter[] parameters, params string[] body)
-            : base(name, TypeRef.From(typeof(T)), accessModifier, inheritanceModifier, isStatic, parameters, body) { }
+            : base(name, TypeRef.From(typeof(T)), accessModifier, inheritanceModifier, isStatic, parameters, isExpressionBodied: false, body) { }
     }
 }

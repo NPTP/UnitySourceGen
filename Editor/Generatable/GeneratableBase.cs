@@ -34,13 +34,21 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         public override string ToString() => GenerateStringRepresentation();
         public abstract string GenerateStringRepresentation();
         
-        // TODO: Make this abstract, and clean it up
+        /// <summary>
+        /// The generated representation split into lines. Members built with AppendLine finish with a
+        /// trailing newline, which would otherwise show up as a spurious empty line; single-line members
+        /// such as expression-bodied methods have no trailing newline, so only an actual empty final
+        /// element is dropped.
+        /// </summary>
         public IEnumerable<string> GenerateStringRepresentationLines()
         {
-            string[] lines = GenerateStringRepresentation().Split(Environment.NewLine);
-            string[] linesWithoutLastLine = new string[lines.Length - 1];
-            Array.Copy(lines, linesWithoutLastLine, linesWithoutLastLine.Length);
-            return linesWithoutLastLine;
+            List<string> lines = new(GenerateStringRepresentation().Split(Environment.NewLine));
+            if (lines.Count > 0 && string.IsNullOrEmpty(lines[lines.Count - 1]))
+            {
+                lines.RemoveAt(lines.Count - 1);
+            }
+
+            return lines;
         }
 
         private string Tab(int count)
