@@ -27,6 +27,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         private InheritanceModifier inheritanceModifier;
         private bool isPartial;
+        private bool isReadOnly;
         private string baseClassTypeName;
         private SortedSet<string> ImplementsInterfaces { get; } = new();
 
@@ -86,6 +87,15 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         public GeneratableTypeDefinition WithInheritanceModifier(InheritanceModifier modifier)
         {
             inheritanceModifier = modifier;
+            return this;
+        }
+
+        /// <summary>
+        /// A readonly struct, whose fields the compiler enforces as immutable. Has no meaning on a class.
+        /// </summary>
+        public GeneratableTypeDefinition ReadOnly()
+        {
+            isReadOnly = true;
             return this;
         }
 
@@ -216,6 +226,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             classSignature.Append(AccessModifier.AsString());
             if (IsStatic) classSignature.Append(SPACE + STATIC);
             if (inheritanceModifier != InheritanceModifier.None) classSignature.Append(SPACE + inheritanceModifier.AsString());
+            if (isReadOnly) classSignature.Append(SPACE + READONLY);
             if (isPartial) classSignature.Append(SPACE + PARTIAL);
             classSignature.Append(SPACE + TypeDefinition.AsString());
             classSignature.Append(SPACE + Name);
