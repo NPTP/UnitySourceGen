@@ -15,12 +15,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
                 ExplicitInt,
                 ExplicitBitShiftFlag
             }
-            
+
             private readonly string name;
             private readonly EnumValueMode valueMode;
             private readonly int value;
             private readonly int bitShiftValue;
-            
+
             internal EnumMember(string name, EnumValueMode valueMode, int? value, int? bitShiftValue)
             {
                 this.name = name;
@@ -65,35 +65,16 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             Members.Add(new EnumMember(name, valueMode, value, bitShiftValue));
         }
 
-        public override string GenerateStringRepresentation()
+        internal override void AppendTypeDeclaration(StringBuilder sb, int indent)
         {
-            int indent = 0;
-            StringBuilder sb = new();
-
-            AddUsingDirectives(sb, indent);
-            AddNamespace(sb, indent);
-            if (HasNamespace())
-            {
-                AddOpenBrace(sb, indent);
-                indent++;
-            }
-
             AddEnumSignature(sb, indent);
             AddOpenBrace(sb, indent);
-            
+
             indent++;
             AddEnumMembers(sb, indent);
             indent--;
-            
+
             AddCloseBrace(sb, indent);
-            
-            if (HasNamespace())
-            {
-                indent--;
-                AddCloseBrace(sb, indent);
-            }
-            
-            return sb.ToString();
         }
 
         private void AddEnumSignature(StringBuilder sb, int indent)
@@ -101,7 +82,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             if (IsFlags) AddLine(sb, indent, FLAGS);
             AddLine(sb, indent, $"{AccessModifier.AsString()} {ENUM} {Name}");
         }
-        
+
         private void AddEnumMembers(StringBuilder sb, int indent)
         {
             for (int i = 0; i < Members.Count; i++)

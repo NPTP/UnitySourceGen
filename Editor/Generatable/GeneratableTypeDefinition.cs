@@ -25,19 +25,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal GeneratableTypeDefinition(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
 
-        public override string GenerateStringRepresentation()
+        internal override void AppendTypeDeclaration(StringBuilder sb, int indent)
         {
-            int indent = 0;
-            StringBuilder sb = new();
-
-            AddUsingDirectives(sb, indent);
-            AddNamespace(sb, indent);
-            if (HasNamespace())
-            {
-                AddOpenBrace(sb, indent);
-                indent++;
-            }
-
             AddClassSignature(sb, indent);
             AddOpenBrace(sb, indent);
 
@@ -51,14 +40,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             indent--;
 
             AddCloseBrace(sb, indent);
-
-            if (HasNamespace())
-            {
-                indent--;
-                AddCloseBrace(sb, indent);
-            }
-
-            return sb.ToString();
         }
 
         private void AddClassSignature(StringBuilder sb, int indent)

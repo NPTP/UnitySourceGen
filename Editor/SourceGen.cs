@@ -17,6 +17,11 @@ namespace NPTP.UnitySourceGen.Editor
         public static GeneratableEnum NewEnum(string name, AccessModifier accessModifier) => new GeneratableEnum(name, accessModifier);
         public static GeneratableCodeChunk NewCodeChunk() => new GeneratableCodeChunk(default, default, default);
 
+        /// <summary>
+        /// A file that can hold several types, across several namespaces if needed.
+        /// </summary>
+        public static GeneratableFile NewFile() => new GeneratableFile();
+
         public static ModifiableScript GetScriptToModify<T>()
         {
             if (AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets(typeof(T), out UnityAssetPath unityAssetPath))
@@ -62,6 +67,20 @@ namespace NPTP.UnitySourceGen.Editor
         public static ScriptWriteResult WriteToPath(string pathInsideAssets, string contents)
         {
             return ScriptWriter.Write(new UnityAssetPath(pathInsideAssets), contents);
+        }
+
+        /// <summary>
+        /// Write a multi-type file to a path inside the project's Assets folder.
+        /// </summary>
+        public static ScriptWriteResult WriteToPath(string pathInsideAssets, GeneratableFile generatableFile)
+        {
+            if (generatableFile == null)
+            {
+                Debug.LogError("Cannot write a null file.");
+                return ScriptWriteResult.Failed;
+            }
+
+            return ScriptWriter.Write(new UnityAssetPath(pathInsideAssets), generatableFile.GenerateStringRepresentation());
         }
 
         public static bool WriteClassToAssetsScriptFile<T>(string pathInsideAssets, GeneratableClass generatableClass)
