@@ -157,5 +157,52 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         }
 
         #endregion
+
+        #region Generic Methods
+
+        public static GeneratableTypeDefinition WithGenericMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, params string[] body)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: false, typeParameters, parameters, isExpressionBodied: false, body));
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithStaticGenericMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, params string[] body)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, typeParameters, parameters, isExpressionBodied: false, body));
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithExpressionBodiedGenericMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, string expression)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: false, typeParameters, parameters, isExpressionBodied: true, expression));
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithStaticExpressionBodiedGenericMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, string expression)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, typeParameters, parameters, isExpressionBodied: true, expression));
+            return gen;
+        }
+
+        /// <summary>A generic extension method. The containing class must be static.</summary>
+        public static GeneratableTypeDefinition WithGenericExtensionMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableTypeParameter[] typeParameters, GeneratableParameter extendedParameter, GeneratableParameter[] additionalParameters, params string[] body)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, typeParameters, Prepend(extendedParameter, additionalParameters), isExpressionBodied: false, body));
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithExpressionBodiedGenericExtensionMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableTypeParameter[] typeParameters, GeneratableParameter extendedParameter, GeneratableParameter[] additionalParameters, string expression)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, typeParameters, Prepend(extendedParameter, additionalParameters), isExpressionBodied: true, expression));
+            return gen;
+        }
+
+        #endregion
     }
 }

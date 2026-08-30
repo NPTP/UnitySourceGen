@@ -13,6 +13,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         private readonly TypeRef returnType;
         private readonly GeneratableParameter[] parameters;
+        private readonly GeneratableTypeParameter[] typeParameters;
 
         /// <summary>
         /// When true, <see cref="body"/> holds a single expression written after "=>" rather than the
@@ -30,9 +31,14 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         /// </param>
         internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
             GeneratableParameter[] parameters, bool isExpressionBodied, params string[] body)
+            : this(name, returnType, accessModifier, inheritanceModifier, isStatic, GeneratableTypeParameter.None, parameters, isExpressionBodied, body) { }
+
+        internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
+            GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, bool isExpressionBodied, params string[] body)
             : base(name, accessModifier, isStatic)
         {
             this.returnType = returnType;
+            this.typeParameters = typeParameters ?? GeneratableTypeParameter.None;
             this.parameters = parameters ?? GeneratableParameter.None;
             this.isExpressionBodied = isExpressionBodied;
             this.body = body ?? Array.Empty<string>();
@@ -73,7 +79,17 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             if (IsStatic) methodSignature.Append(SPACE + STATIC);
             methodSignature.Append(SPACE + returnType.Name);
             methodSignature.Append(SPACE + Name);
+            if (typeParameters.Length > 0)
+            {
+                methodSignature.Append("<" + string.Join(COMMA + SPACE, typeParameters.Select(typeParameter => typeParameter.Name)) + ">");
+            }
+
             methodSignature.Append("(" + string.Join(COMMA + SPACE, parameters.Select(parameter => parameter.GetStringRepresentation())) + ")");
+
+            foreach (GeneratableTypeParameter typeParameter in typeParameters.Where(typeParameter => typeParameter.HasConstraints))
+            {
+                methodSignature.Append(SPACE + typeParameter.GetConstraintClause());
+            }
 
             return methodSignature.ToString();
         }
