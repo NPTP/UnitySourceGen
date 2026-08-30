@@ -10,7 +10,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <code>
     /// SourceGen.NewCodeChunk()
     ///     .WithComment("Generated - do not edit")
-    ///     .WithField(SourceGen.NewField("count").OfType&lt;int&gt;().Private())
+    ///     .WithField(SourceGen.NewField&lt;int&gt;("count").Private())
     ///     .WithEmptyLine()
     ///     .WithMethod(SourceGen.NewMethod("Reset").Public().ReturningVoid().Body("count = 0;"));
     /// </code>
