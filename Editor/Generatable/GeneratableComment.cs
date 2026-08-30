@@ -1,11 +1,20 @@
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
+    /// <summary>
+    /// A single-line comment. Owns the "//" prefix, so callers pass the text alone.
+    /// </summary>
     public class GeneratableComment : GeneratableBase
     {
-        public GeneratableComment(string comment) : base(comment, default, default)
-        {
-        }
+        private const string PREFIX = "// ";
 
-        public override string GenerateStringRepresentation() => Name; // Name == comment
+        // The comment text is not an identifier, so it must not be sanitized.
+        public GeneratableComment(string comment) : base(comment, sanitizeName: false) { }
+
+        public override string GenerateStringRepresentation() => PREFIX + Name;
+
+        /// <summary>True if the line already contains this comment, used to avoid duplicating it.</summary>
+        public bool Matches(string line) => line != null && line.Contains(GenerateStringRepresentation());
+
+        public static implicit operator string(GeneratableComment comment) => comment.GenerateStringRepresentation();
     }
 }

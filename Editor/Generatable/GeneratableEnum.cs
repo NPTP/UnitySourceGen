@@ -2,12 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
+using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
+    /// <summary>
+    /// A generated enum, configured fluently on itself:
+    /// <code>
+    /// SourceGen.NewEnum("ControlScheme").Public()
+    ///     .InNamespace("MyGame.Enums")
+    ///     .WithMember("None", -1)
+    ///     .WithMember("KeyboardMouse", 0)
+    /// </code>
+    /// Prefer the explicit-value overload of <see cref="WithMember(string, int)"/> whenever generated code
+    /// casts between the enum and an int, so the mapping cannot drift when members are added or reordered.
+    /// <see cref="AsFlags"/> marks the enum [Flags] and adds the System directive it needs. Member names
+    /// are sanitized, so they can be taken straight from asset or config names.
+    /// </summary>
     public sealed class GeneratableEnum : GeneratableDefinition
     {
-        internal class EnumMember
+        private class EnumMember
         {
             internal enum EnumValueMode
             {
@@ -15,12 +30,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
                 ExplicitInt,
                 ExplicitBitShiftFlag
             }
-            
+
             private readonly string name;
             private readonly EnumValueMode valueMode;
             private readonly int value;
             private readonly int bitShiftValue;
-            
+
             internal EnumMember(string name, EnumValueMode valueMode, int? value, int? bitShiftValue)
             {
                 this.name = name;
@@ -42,66 +57,133 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         }
 
         private const string ENUM = "enum";
-        private const string FLAGS = "[Flags]";
+        private const string FLAGS = "Flags";
         private const string SYSTEM = "System";
 
         private List<EnumMember> Members { get; } = new();
 
         private bool isFlags;
-        internal bool IsFlags
+
+        internal GeneratableEnum(string name) : base(name) { }
+
+        #region File Placement
+
+        public new GeneratableEnum InNamespace(string @namespace)
         {
-            get => isFlags;
-            set
-            {
-                isFlags = value;
-                if (value) Directives.Add(SYSTEM);
-            }
+            Namespace = @namespace;
+            return this;
         }
 
-        internal GeneratableEnum(string nameSyntax, AccessModifier accessModifier) : base(nameSyntax, accessModifier, isStatic: false) { }
-
-        internal void AddMember(string name, EnumMember.EnumValueMode valueMode, int? value, int? bitShiftValue)
+        /// <summary>Write like WithDirective("UnityEngine"), rather than WithDirective("using UnityEngine;").</summary>
+        public new GeneratableEnum WithDirective(string directive)
         {
-            Members.Add(new EnumMember(name, valueMode, value, bitShiftValue));
+            Directives.Add(directive);
+            return this;
         }
 
-        public override string GenerateStringRepresentation()
+        public new GeneratableEnum WithDirectives(params string[] directives)
         {
-            int indent = 0;
-            StringBuilder sb = new();
-
-            AddUsingDirectives(sb, indent);
-            AddNamespace(sb, indent);
-            if (HasNamespace())
+            if (directives != null)
             {
-                AddOpenBrace(sb, indent);
-                indent++;
+                foreach (string directive in directives) Directives.Add(directive);
             }
 
+            return this;
+        }
+
+        #endregion
+
+        #region Declaration
+
+        public GeneratableEnum WithAccess(AccessModifier modifier)
+        {
+            AccessModifier = modifier;
+            return this;
+        }
+
+        public GeneratableEnum Public() => WithAccess(AccessModifier.Public);
+        public GeneratableEnum Private() => WithAccess(AccessModifier.Private);
+        public GeneratableEnum Internal() => WithAccess(AccessModifier.Internal);
+
+        /// <summary>Marks the enum [Flags], adding the System directive it needs.</summary>
+        public GeneratableEnum AsFlags()
+        {
+            isFlags = true;
+            Directives.Add(SYSTEM);
+            return this;
+        }
+
+        public GeneratableEnum WithAttribute(AddableAttribute attribute)
+        {
+            AddAttribute(attribute);
+            return this;
+        }
+
+        public GeneratableEnum WithAttribute(string attributeName, params string[] arguments) =>
+            WithAttribute(new AddableAttribute(attributeName, arguments));
+
+        public GeneratableEnum OnlyIf(string conditionalCompilationSymbol)
+        {
+            ConditionalCompilationSymbol = conditionalCompilationSymbol;
+            return this;
+        }
+
+        #endregion
+
+        #region Members
+
+        /// <summary>A member with no explicit value, taking whatever the compiler assigns it.</summary>
+        public GeneratableEnum WithMember(string memberName)
+        {
+            Members.Add(new EnumMember(GeneratedIdentifier.Sanitize(memberName), EnumMember.EnumValueMode.NonExplicit, null, null));
+            return this;
+        }
+
+        /// <summary>
+        /// A member with an explicit value. Prefer this whenever generated code casts between the enum and
+        /// an int, so the mapping cannot drift when members are added or reordered.
+        /// </summary>
+        public GeneratableEnum WithMember(string memberName, int value)
+        {
+            Members.Add(new EnumMember(GeneratedIdentifier.Sanitize(memberName), EnumMember.EnumValueMode.ExplicitInt, value, null));
+            return this;
+        }
+
+        /// <summary>e.g. WithBitShiftedMember("Gamepad", 1, 2) -> Gamepad = 1 &lt;&lt; 2</summary>
+        public GeneratableEnum WithBitShiftedMember(string memberName, int value, int bitShiftValue)
+        {
+            Members.Add(new EnumMember(GeneratedIdentifier.Sanitize(memberName), EnumMember.EnumValueMode.ExplicitBitShiftFlag, value, bitShiftValue));
+            return this;
+        }
+
+        #endregion
+
+        internal override void AppendTypeDeclaration(StringBuilder sb, int indent)
+        {
+            AppendIfDirective(sb);
+            AddAttributeLines(sb, indent);
             AddEnumSignature(sb, indent);
             AddOpenBrace(sb, indent);
-            
+
             indent++;
             AddEnumMembers(sb, indent);
             indent--;
-            
+
             AddCloseBrace(sb, indent);
-            
-            if (HasNamespace())
+
+            if (HasConditionalCompilation)
             {
-                indent--;
-                AddCloseBrace(sb, indent);
+                AppendEndIfDirective(sb);
+                sb.AppendLine();
             }
-            
-            return sb.ToString();
         }
 
         private void AddEnumSignature(StringBuilder sb, int indent)
         {
-            if (IsFlags) AddLine(sb, indent, FLAGS);
+            if (isFlags) AddLine(sb, indent, $"[{FLAGS}]");
             AddLine(sb, indent, $"{AccessModifier.AsString()} {ENUM} {Name}");
         }
-        
+
         private void AddEnumMembers(StringBuilder sb, int indent)
         {
             for (int i = 0; i < Members.Count; i++)

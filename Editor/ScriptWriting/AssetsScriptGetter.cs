@@ -23,9 +23,8 @@ namespace NPTP.UnitySourceGen.Editor.ScriptWriting
                 if (IsEnum(type, scriptAsset) ||
                     scriptAsset.GetClass() == type ||
                     type.IsAssignableFrom(scriptAsset.GetClass()) ||
-                    IsStruct(type, scriptAsset))
-                    // TODO: record support
-                    // || IsRecord(type, scriptAsset)
+                    IsStruct(type, scriptAsset) ||
+                    IsRecord(type, scriptAsset))
                 {
                     unityAssetPath = new UnityAssetPath(assetPath);
                     return true;
@@ -46,10 +45,15 @@ namespace NPTP.UnitySourceGen.Editor.ScriptWriting
             return type.IsValueType && !type.IsPrimitive && !type.IsEnum && scriptAsset.text.Contains($"struct {type.Name}");
         }
 
-        // TODO: record support
+        /// <summary>
+        /// Records compile to classes (or structs, for record struct), so they cannot be told apart by
+        /// reflection alone - the declaration in the source is what identifies one.
+        /// </summary>
         private static bool IsRecord(Type type, MonoScript scriptAsset)
         {
-            return type.IsClass && scriptAsset.text.Contains($"record {type.Name}");
+            return scriptAsset.text.Contains($"record {type.Name}") ||
+                   scriptAsset.text.Contains($"record class {type.Name}") ||
+                   scriptAsset.text.Contains($"record struct {type.Name}");
         }
     }
 }
