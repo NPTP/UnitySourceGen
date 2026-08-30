@@ -30,8 +30,9 @@ namespace NPTP.UnitySourceGen.Editor.Modifiable
             return this;
         }
 
-        /// <summary>Write like WithDirective("UnityEngine"), rather than WithDirective("using UnityEditor;
-using UnityEngine;").</summary>
+        /// <summary>
+        /// Write like WithDirective("UnityEngine"), rather than WithDirective("using UnityEditor; using UnityEngine;").
+        /// </summary>
         public ModifiableScript WithDirective(string directive)
         {
             if (!string.IsNullOrEmpty(directive)) AddDirective(directive);

@@ -19,6 +19,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private readonly TypeRef propertyType;
 
         private string expression;
+        private string getterExpression;
+        private string setterExpression;
         private bool hasSetter;
         private bool isSetterPrivate;
 
@@ -71,9 +73,22 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         }
 
         /// <summary>An expression-bodied property: "public int Foo => expression;".</summary>
-        public GeneratableProperty Expression(string getterExpression)
+        public GeneratableProperty Expression(string propertyExpression)
         {
-            expression = getterExpression;
+            expression = propertyExpression;
+            return this;
+        }
+
+        /// <summary>
+        /// Accessors that each forward to an expression:
+        /// "public int Foo { get => target; set => target = value; }". Pass a null setter for a
+        /// get-only property that still needs an explicit accessor body.
+        /// </summary>
+        public GeneratableProperty WithAccessors(string getExpression, string setExpression)
+        {
+            getterExpression = getExpression;
+            setterExpression = setExpression;
+            expression = null;
             return this;
         }
 
@@ -101,6 +116,14 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             if (IsStatic) property.Append(SPACE + STATIC);
             property.Append(SPACE + propertyType.Name);
             property.Append(SPACE + Name);
+
+            if (getterExpression != null)
+            {
+                property.Append(SPACE + "{ get => " + getterExpression + SEMICOLON);
+                if (setterExpression != null) property.Append(SPACE + "set => " + setterExpression + SEMICOLON);
+                property.Append(SPACE + "}");
+                return property.ToString();
+            }
 
             if (expression != null)
             {
