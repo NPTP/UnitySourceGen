@@ -13,8 +13,10 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// SourceGen.NewProperty("Gameplay").OfType("GameplayActions").Public().Static().Expression("DefaultPlayer.Gameplay()")
     /// SourceGen.NewProperty("Enabled").OfType&lt;bool&gt;().Public().WithAccessors("runtime.Enabled", "runtime.Enabled = value")
     /// </code>
-    /// Auto-property forms are <see cref="GetOnly"/>, <see cref="GetSet"/> and
-    /// <see cref="GetPrivateSet"/>; the others give the accessors an expression body.
+    /// <see cref="OfType(Syntax.TypeRef)"/> is the one call that is not optional - a property with no type
+    /// cannot compile. Auto-property forms are <see cref="GetOnly"/>, <see cref="GetSet"/> and
+    /// <see cref="GetPrivateSet"/>; <see cref="Expression"/> and <see cref="WithAccessors"/> give the
+    /// accessors an expression body instead.
     /// </summary>
     public class GeneratableProperty : GeneratableBase
     {

@@ -14,8 +14,15 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// across all of them lives here - the name, access modifier, static-ness, attributes, conditional
     /// compilation, and the indentation helpers used to render them.
     /// <para>
-    /// Generatables are created through <see cref="SourceGen"/> and then configure themselves through
-    /// fluent methods, so there are no separate builder types and no extension classes to import.
+    /// Generatables are created through <see cref="SourceGen"/>, which takes only a name, and then
+    /// configure themselves through fluent methods - there are no separate builder types and no extension
+    /// classes to import. Anything not set takes the same default C# would apply: members are private,
+    /// top-level types internal, methods return void.
+    /// </para>
+    /// <para>
+    /// The name is run through <see cref="GeneratedIdentifier"/> on construction, so a name taken from an
+    /// asset or a config file cannot produce code that fails to compile. Type names are the exception and
+    /// are never sanitized - see <see cref="TypeRef"/>.
     /// </para>
     /// </summary>
     public abstract class GeneratableBase

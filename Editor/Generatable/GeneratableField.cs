@@ -14,6 +14,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// SourceGen.NewField("Max").OfType&lt;int&gt;().Public().Const("100")
     /// SourceGen.NewField("wrappers").OfType("Dictionary&lt;string, IActionMapWrapper&gt;").Private().ReadOnly()
     /// </code>
+    /// <see cref="OfType(Syntax.TypeRef)"/> is the one call that is not optional - a field with no type
+    /// cannot compile. Everything else defaults as it would in C#: private, non-static, no initializer.
     /// </summary>
     public class GeneratableField : GeneratableBase
     {

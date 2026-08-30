@@ -12,7 +12,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// GeneratableTypeParameter.Of("T")                        // T, unconstrained
     /// </code>
     /// Constraints are written in the order given, which is the caller's responsibility: C# requires the
-    /// primary constraint (class / struct / a base class) first and new() last.
+    /// primary constraint (class / struct / a base class) first and new() last. The type parameter's own
+    /// name is sanitized into a valid identifier; its constraints are type names, taken as written.
     /// </summary>
     public readonly struct GeneratableTypeParameter
     {

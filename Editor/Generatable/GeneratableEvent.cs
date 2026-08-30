@@ -13,6 +13,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// SourceGen.NewEvent("OnControlsUpdated").Public().Static().OfType("Action")
     /// SourceGen.NewEvent("OnControlsUpdated").Public().Static().OfType("Action").Forwarding("Runtime.OnControlsUpdated")
     /// </code>
+    /// The handler type defaults to Action, which is what most events need; <see cref="OfType(Syntax.TypeRef)"/>
+    /// changes it. Without <see cref="Forwarding"/> or <see cref="WithAccessors"/> the event is field-like.
     /// </summary>
     public class GeneratableEvent : GeneratableBase
     {

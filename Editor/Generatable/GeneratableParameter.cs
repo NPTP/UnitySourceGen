@@ -11,6 +11,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// GeneratableParameter.Extension("InputPlayer", "inputPlayer")      // this InputPlayer inputPlayer
     /// GeneratableParameter.Out("ActionWrapper", "actionWrapper")        // out ActionWrapper actionWrapper
     /// </code>
+    /// Parameter names are sanitized into valid camelCase identifiers; the type is taken as written.
     /// </summary>
     public readonly struct GeneratableParameter
     {

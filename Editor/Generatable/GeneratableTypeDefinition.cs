@@ -15,6 +15,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     ///     .WithDirectives("System", "UnityEngine")
     ///     .WithMethod(SourceGen.NewMethod("Initialize").Private().Static().Body("..."))
     /// </code>
+    /// A type with no access modifier set is internal, as in C#. Members are added with WithField,
+    /// WithEvent, WithProperty and WithMethod; adding one that collides with an existing member replaces
+    /// it, so a default can be set first and overridden later.
     /// </summary>
     public abstract class GeneratableTypeDefinition : GeneratableDefinition
     {
