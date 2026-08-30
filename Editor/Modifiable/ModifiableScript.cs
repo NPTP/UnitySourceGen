@@ -6,7 +6,6 @@ using NPTP.UnitySourceGen.Editor.Extensions;
 using NPTP.UnitySourceGen.Editor.Extensions.Internal;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Generatable.Directives;
-using NPTP.UnitySourceGen.Editor.Generatable.Other;
 using NPTP.UnitySourceGen.Editor.ScriptWriting;
 using UnityEditor;
 using UnityEngine;
@@ -99,7 +98,7 @@ namespace NPTP.UnitySourceGen.Editor.Modifiable
 
         internal void AddComment(string comment)
         {
-            scriptLines.Add(new Comment(comment));
+            scriptLines.Add(new GeneratableComment(comment));
         }
 
         private void RemoveLines(string content)
