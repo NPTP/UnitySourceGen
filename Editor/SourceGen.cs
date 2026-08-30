@@ -4,6 +4,7 @@ using System.Linq;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Modifiable;
 using NPTP.UnitySourceGen.Editor.ScriptWriting;
+using NPTP.UnitySourceGen.Editor.Syntax;
 using UnityEngine;
 
 namespace NPTP.UnitySourceGen.Editor
@@ -30,8 +31,18 @@ namespace NPTP.UnitySourceGen.Editor
 
         public static GeneratableMethod NewMethod(string name) => new(name);
         public static GeneratableEvent NewEvent(string name) => new(name);
-        public static GeneratableField NewField(string name) => new(name);
-        public static GeneratableProperty NewProperty(string name) => new(name);
+        /// <summary>
+        /// A field. The type is required here, since a field without one cannot compile; pass it as a
+        /// string for a type being generated, or use the generic overload for one that already exists.
+        /// </summary>
+        public static GeneratableField NewField(string name, TypeRef fieldType) => new(name, fieldType);
+
+        public static GeneratableField NewField<T>(string name) => new(name, TypeRef.From(typeof(T)));
+
+        /// <summary>A property. The type is required, for the same reason as on a field.</summary>
+        public static GeneratableProperty NewProperty(string name, TypeRef propertyType) => new(name, propertyType);
+
+        public static GeneratableProperty NewProperty<T>(string name) => new(name, TypeRef.From(typeof(T)));
 
         public static GeneratableCodeChunk NewCodeChunk() => new();
 

@@ -9,20 +9,19 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <summary>
     /// A generated property, either auto-implemented or expression-bodied:
     /// <code>
-    /// SourceGen.NewProperty("Gameplay").OfType("GameplayActions").Public().GetOnly()
-    /// SourceGen.NewProperty("Gameplay").OfType("GameplayActions").Public().Static().Expression("DefaultPlayer.Gameplay()")
-    /// SourceGen.NewProperty("Enabled").OfType&lt;bool&gt;().Public().WithAccessors("runtime.Enabled", "runtime.Enabled = value")
+    /// SourceGen.NewProperty("Gameplay", "GameplayActions").Public().GetOnly()
+    /// SourceGen.NewProperty("Gameplay", "GameplayActions").Public().Static().Expression("DefaultPlayer.Gameplay()")
+    /// SourceGen.NewProperty&lt;bool&gt;("Enabled").Public().WithAccessors("runtime.Enabled", "runtime.Enabled = value")
     /// </code>
-    /// <see cref="OfType(Syntax.TypeRef)"/> is the one call that is not optional - a property with no type
-    /// cannot compile. Auto-property forms are <see cref="GetOnly"/>, <see cref="GetSet"/> and
-    /// <see cref="GetPrivateSet"/>; <see cref="Expression"/> and <see cref="WithAccessors"/> give the
-    /// accessors an expression body instead.
+    /// The type is required, so it is a constructor argument. Auto-property forms are
+    /// <see cref="GetOnly"/>, <see cref="GetSet"/> and <see cref="GetPrivateSet"/>;
+    /// <see cref="Expression"/> and <see cref="WithAccessors"/> give the accessors an expression body.
     /// </summary>
     public class GeneratableProperty : GeneratableBase
     {
         private const string GETTER_ARROW = "=>";
 
-        private TypeRef propertyType = TypeRef.Void;
+        private readonly TypeRef propertyType;
 
         private string expression;
         private string getterExpression;
@@ -33,16 +32,14 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         private bool isSetterPrivate;
 
-        internal GeneratableProperty(string name) : base(name) { }
-
-        /// <summary>The property's type. Required: a property with no type cannot compile.</summary>
-        public GeneratableProperty OfType(TypeRef type)
+        /// <summary>
+        /// The type is a constructor argument rather than a fluent call, because a property without one
+        /// cannot compile - taking it here means it cannot be forgotten.
+        /// </summary>
+        internal GeneratableProperty(string name, TypeRef propertyType) : base(name)
         {
-            propertyType = type;
-            return this;
+            this.propertyType = propertyType;
         }
-
-        public GeneratableProperty OfType<T>() => OfType(TypeRef.From(typeof(T)));
 
         public GeneratableProperty WithAccess(AccessModifier modifier)
         {

@@ -9,13 +9,13 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <summary>
     /// A generated field, configured fluently on itself:
     /// <code>
-    /// SourceGen.NewField("playerID").OfType("int").Private().WithInitialValue("0")
-    /// SourceGen.NewField("actions").OfType("GameplayActions").Serialized()
-    /// SourceGen.NewField("Max").OfType&lt;int&gt;().Public().Const("100")
-    /// SourceGen.NewField("wrappers").OfType("Dictionary&lt;string, IActionMapWrapper&gt;").Private().ReadOnly()
+    /// SourceGen.NewField("playerID", "int").Private().WithInitialValue("0")
+    /// SourceGen.NewField("actions", "GameplayActions").Serialized()
+    /// SourceGen.NewField&lt;int&gt;("Max").Public().Const("100")
+    /// SourceGen.NewField("wrappers", "Dictionary&lt;string, IActionMapWrapper&gt;").Private().ReadOnly()
     /// </code>
-    /// <see cref="OfType(Syntax.TypeRef)"/> is the one call that is not optional - a field with no type
-    /// cannot compile. Everything else defaults as it would in C#: private, non-static, no initializer.
+    /// The type is required, so it is a constructor argument; everything else is optional and defaults as
+    /// it would in C#: private, non-static, no initializer.
     /// </summary>
     public class GeneratableField : GeneratableBase
     {
@@ -23,7 +23,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private const string READONLY = "readonly";
         private const string SERIALIZE_FIELD = "SerializeField";
 
-        private TypeRef fieldType = TypeRef.Void;
+        private readonly TypeRef fieldType;
 
         private string initialValueExpression;
         private bool isConst;
@@ -33,16 +33,14 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal override IEnumerable<TypeRef> ReferencedTypes => new[] { fieldType };
 
-        internal GeneratableField(string name) : base(name) { }
-
-        /// <summary>The field's type. Required: a field with no type cannot compile.</summary>
-        public GeneratableField OfType(TypeRef type)
+        /// <summary>
+        /// The type is a constructor argument rather than a fluent call, because a field without one
+        /// cannot compile - taking it here means it cannot be forgotten.
+        /// </summary>
+        internal GeneratableField(string name, TypeRef fieldType) : base(name)
         {
-            fieldType = type;
-            return this;
+            this.fieldType = fieldType;
         }
-
-        public GeneratableField OfType<T>() => OfType(TypeRef.From(typeof(T)));
 
         public GeneratableField WithAccess(AccessModifier modifier)
         {
