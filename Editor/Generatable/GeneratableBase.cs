@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Extensions;
+using NPTP.UnitySourceGen.Editor.Extensions.Internal;
+using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -47,7 +49,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return tab.ToString();
         }
         
-        protected string GetValueAsString<TValue>(Type type, TValue value)
+        protected static string GetValueAsString<TValue>(Type type, TValue value)
         {
             StringBuilder sb = new();
             string left = string.Empty;
@@ -79,44 +81,10 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         protected void AddCloseBrace(StringBuilder sb, int indent) => AddLine(sb, indent, CLOSE_BRACE);
         
-        protected string GetTypeName(Type type)
-        {
-            if (type == typeof(string))	
-                return "string";
-            if (type == typeof(int))
-                return "int";
-            if (type == typeof(bool))	
-                return "bool";
-            if (type == typeof(byte))	
-                return "byte";
-            if (type == typeof(sbyte))	
-                return "sbyte";
-            if (type == typeof(char))	
-                return "char";
-            if (type == typeof(decimal))	
-                return "decimal";
-            if (type == typeof(double))	
-                return "double";
-            if (type == typeof(float))	
-                return "float";
-            if (type == typeof(int))	
-                return "int";
-            if (type == typeof(uint))	
-                return "uint";
-            if (type == typeof(nint))	
-                return "nint";
-            if (type == typeof(nuint))	
-                return "nuint";
-            if (type == typeof(long))	
-                return "long";
-            if (type == typeof(ulong))	
-                return "ulong";
-            if (type == typeof(short))	
-                return "short";
-            if (type == typeof(ushort))
-                return "ushort";
-
-            return type.Name;
-        }
+        /// <summary>
+        /// Kept for convenience. <see cref="TypeRef"/> is the general form, and is the only way to name a
+        /// type that does not exist yet, such as another type being generated in the same run.
+        /// </summary>
+        protected static string GetTypeName(Type type) => TypeRef.From(type).Name;
     }
 }
