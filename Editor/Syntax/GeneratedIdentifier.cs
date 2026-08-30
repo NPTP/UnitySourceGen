@@ -145,6 +145,15 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
             identifier.Clear();
         }
 
+        /// <summary>Sanitize, then make the first character uppercase, for a type, property or method name.</summary>
+        public static string SanitizeAsPascalCase(string rawName)
+        {
+            string identifier = Sanitize(rawName);
+            return identifier[0] == ESCAPE || char.IsUpper(identifier[0])
+                ? identifier
+                : char.ToUpperInvariant(identifier[0]) + identifier.Substring(1);
+        }
+
         /// <summary>Sanitize, then make the first character lowercase, for a field or parameter name.</summary>
         public static string SanitizeAsCamelCase(string rawName)
         {
