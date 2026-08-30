@@ -47,7 +47,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private string baseConstructorArguments;
         private bool isExpressionBodied;
 
-        internal GeneratableMethod(string name) : base(name, AccessModifier.Private, isStatic: false) { }
+        internal GeneratableMethod(string name) : base(name) { }
 
         /// <summary>
         /// The types this method names in its signature.

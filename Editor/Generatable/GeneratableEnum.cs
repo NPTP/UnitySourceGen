@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
+using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
     /// <summary>
     /// A generated enum, configured fluently on itself:
     /// <code>
-    /// SourceGen.NewEnum("ControlScheme", AccessModifier.Public)
+    /// SourceGen.NewEnum("ControlScheme").Public()
     ///     .InNamespace("MyGame.Enums")
     ///     .WithMember("None", -1)
     ///     .WithMember("KeyboardMouse", 0)
@@ -62,7 +63,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         private bool isFlags;
 
-        internal GeneratableEnum(string name, AccessModifier accessModifier) : base(name, accessModifier, isStatic: false) { }
+        internal GeneratableEnum(string name) : base(name) { }
 
         #region File Placement
 
@@ -133,7 +134,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         /// <summary>A member with no explicit value, taking whatever the compiler assigns it.</summary>
         public GeneratableEnum WithMember(string memberName)
         {
-            Members.Add(new EnumMember(memberName, EnumMember.EnumValueMode.NonExplicit, null, null));
+            Members.Add(new EnumMember(GeneratedIdentifier.Sanitize(memberName), EnumMember.EnumValueMode.NonExplicit, null, null));
             return this;
         }
 
@@ -143,14 +144,14 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         /// </summary>
         public GeneratableEnum WithMember(string memberName, int value)
         {
-            Members.Add(new EnumMember(memberName, EnumMember.EnumValueMode.ExplicitInt, value, null));
+            Members.Add(new EnumMember(GeneratedIdentifier.Sanitize(memberName), EnumMember.EnumValueMode.ExplicitInt, value, null));
             return this;
         }
 
         /// <summary>e.g. WithBitShiftedMember("Gamepad", 1, 2) -> Gamepad = 1 &lt;&lt; 2</summary>
         public GeneratableEnum WithBitShiftedMember(string memberName, int value, int bitShiftValue)
         {
-            Members.Add(new EnumMember(memberName, EnumMember.EnumValueMode.ExplicitBitShiftFlag, value, bitShiftValue));
+            Members.Add(new EnumMember(GeneratedIdentifier.Sanitize(memberName), EnumMember.EnumValueMode.ExplicitBitShiftFlag, value, bitShiftValue));
             return this;
         }
 

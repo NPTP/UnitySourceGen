@@ -2,7 +2,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 {
     public class GeneratableEmptyMember : GeneratableBase
     {
-        public GeneratableEmptyMember() : base(default, default, default) { }
+        public GeneratableEmptyMember() : base(string.Empty, sanitizeName: false) { }
 
         public override string GenerateStringRepresentation()
         {

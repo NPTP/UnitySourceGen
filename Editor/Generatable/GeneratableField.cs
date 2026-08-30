@@ -9,10 +9,10 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <summary>
     /// A generated field, configured fluently on itself:
     /// <code>
-    /// SourceGen.NewField("playerID", "int").Private().WithInitialValue("0")
-    /// SourceGen.NewField("actions", "GameplayActions").Serialized()
-    /// SourceGen.NewField("Max", "int").Public().Const("100")
-    /// SourceGen.NewField("wrappers", "Dictionary&lt;string, IActionMapWrapper&gt;").Private().ReadOnly()
+    /// SourceGen.NewField("playerID").OfType("int").Private().WithInitialValue("0")
+    /// SourceGen.NewField("actions").OfType("GameplayActions").Serialized()
+    /// SourceGen.NewField("Max").OfType&lt;int&gt;().Public().Const("100")
+    /// SourceGen.NewField("wrappers").OfType("Dictionary&lt;string, IActionMapWrapper&gt;").Private().ReadOnly()
     /// </code>
     /// </summary>
     public class GeneratableField : GeneratableBase
@@ -21,7 +21,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private const string READONLY = "readonly";
         private const string SERIALIZE_FIELD = "SerializeField";
 
-        private readonly TypeRef fieldType;
+        private TypeRef fieldType = TypeRef.Void;
 
         private string initialValueExpression;
         private bool isConst;
@@ -31,10 +31,16 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal override IEnumerable<TypeRef> ReferencedTypes => new[] { fieldType };
 
-        internal GeneratableField(string name, TypeRef fieldType) : base(name, AccessModifier.Private, isStatic: false)
+        internal GeneratableField(string name) : base(name) { }
+
+        /// <summary>The field's type. Required: a field with no type cannot compile.</summary>
+        public GeneratableField OfType(TypeRef type)
         {
-            this.fieldType = fieldType;
+            fieldType = type;
+            return this;
         }
+
+        public GeneratableField OfType<T>() => OfType(TypeRef.From(typeof(T)));
 
         public GeneratableField WithAccess(AccessModifier modifier)
         {

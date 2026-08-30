@@ -7,7 +7,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     {
         private const string PREFIX = "// ";
 
-        public GeneratableComment(string comment) : base(comment, default, default) { }
+        // The comment text is not an identifier, so it must not be sanitized.
+        public GeneratableComment(string comment) : base(comment, sanitizeName: false) { }
 
         public override string GenerateStringRepresentation() => PREFIX + Name;
 

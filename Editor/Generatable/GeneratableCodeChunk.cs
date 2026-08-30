@@ -22,7 +22,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal int Indent { get; set; }
 
-        internal GeneratableCodeChunk() : base(name: string.Empty, AccessModifier.Private, isStatic: false) { }
+        internal GeneratableCodeChunk() : base(string.Empty, sanitizeName: false) { }
 
         public GeneratableCodeChunk WithField(GeneratableField field)
         {

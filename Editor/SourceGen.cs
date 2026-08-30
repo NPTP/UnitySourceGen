@@ -11,11 +11,11 @@ using UnityEngine;
 namespace NPTP.UnitySourceGen.Editor
 {
     /// <summary>
-    /// Entry point for source generation. Everything is created here and then configured fluently on
-    /// itself, e.g.
+    /// Entry point for source generation. Each factory here takes only a name - which is sanitized into a
+    /// valid identifier - and everything else about the result is set fluently on the object itself.
     /// <code>
     /// SourceGen.WriteToPath("Assets/MyGame.Generated/ISW.cs",
-    ///     SourceGen.NewStaticClass("ISW", AccessModifier.Public)
+    ///     SourceGen.NewClass("ISW").Public().Static()
     ///         .InNamespace("MyGame")
     ///         .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning("InputPlayer")
     ///             .Taking(GeneratableParameter.Of&lt;int&gt;("playerID"))
@@ -26,15 +26,14 @@ namespace NPTP.UnitySourceGen.Editor
     {
         #region Creation
 
-        public static GeneratableClass NewClass(string name, AccessModifier accessModifier) => new(name, accessModifier, isStatic: false);
-        public static GeneratableClass NewStaticClass(string name, AccessModifier accessModifier) => new(name, accessModifier, isStatic: true);
-        public static GeneratableStruct NewStruct(string name, AccessModifier accessModifier) => new(name, accessModifier);
-        public static GeneratableEnum NewEnum(string name, AccessModifier accessModifier) => new(name, accessModifier);
+        public static GeneratableClass NewClass(string name) => new(name);
+        public static GeneratableStruct NewStruct(string name) => new(name);
+        public static GeneratableEnum NewEnum(string name) => new(name);
 
         public static GeneratableMethod NewMethod(string name) => new(name);
         public static GeneratableEvent NewEvent(string name) => new(name);
-        public static GeneratableField NewField(string name, TypeRef fieldType) => new(name, fieldType);
-        public static GeneratableProperty NewProperty(string name, TypeRef propertyType) => new(name, propertyType);
+        public static GeneratableField NewField(string name) => new(name);
+        public static GeneratableProperty NewProperty(string name) => new(name);
 
         public static GeneratableCodeChunk NewCodeChunk() => new();
 

@@ -31,7 +31,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         private GeneratableTypeParameter(string name, TypeRef[] constraints)
         {
-            this.name = name;
+            this.name = GeneratedIdentifier.Sanitize(name);
             this.constraints = constraints ?? Array.Empty<TypeRef>();
         }
 

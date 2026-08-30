@@ -10,7 +10,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <summary>
     /// A generated class or struct, configured fluently on itself:
     /// <code>
-    /// SourceGen.NewStaticClass("ISW", AccessModifier.Public)
+    /// SourceGen.NewClass("ISW").Public().Static()
     ///     .InNamespace("MyGame")
     ///     .WithDirectives("System", "UnityEngine")
     ///     .WithMethod(SourceGen.NewMethod("Initialize").Private().Static().Body("..."))
@@ -32,7 +32,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private List<GeneratableProperty> Properties { get; } = new();
         private List<GeneratableMethod> Methods { get; } = new();
 
-        internal GeneratableTypeDefinition(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
+        internal GeneratableTypeDefinition(string name) : base(name) { }
 
         #region File Placement
 
@@ -73,6 +73,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         public GeneratableTypeDefinition Private() => WithAccess(AccessModifier.Private);
         public GeneratableTypeDefinition Protected() => WithAccess(AccessModifier.Protected);
         public GeneratableTypeDefinition Internal() => WithAccess(AccessModifier.Internal);
+
+        public GeneratableTypeDefinition Static()
+        {
+            IsStatic = true;
+            return this;
+        }
 
         public GeneratableTypeDefinition WithInheritanceModifier(InheritanceModifier modifier)
         {

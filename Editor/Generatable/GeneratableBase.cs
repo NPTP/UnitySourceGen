@@ -67,14 +67,21 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         }
 
         // Settable so that each generatable can configure itself fluently after construction.
-        protected AccessModifier AccessModifier { get; set; }
+        protected AccessModifier AccessModifier { get; set; } = AccessModifier.Private;
         public bool IsStatic { get; protected set; }
 
-        protected GeneratableBase(string name, AccessModifier accessModifier, bool isStatic)
+        /// <summary>
+        /// The name is the only thing a generatable needs up front, and it is sanitized into a valid
+        /// identifier here so that no caller has to. Everything else is set fluently afterwards.
+        /// </summary>
+        protected GeneratableBase(string name) : this(name, sanitizeName: true) { }
+
+        /// <param name="sanitizeName">
+        /// False only for generatables whose "name" is not an identifier at all, such as a comment.
+        /// </param>
+        protected GeneratableBase(string name, bool sanitizeName)
         {
-            Name = name;
-            AccessModifier = accessModifier;
-            IsStatic = isStatic;
+            Name = sanitizeName ? GeneratedIdentifier.Sanitize(name) : name;
         }
 
         /// <summary>

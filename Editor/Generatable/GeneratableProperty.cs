@@ -9,9 +9,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <summary>
     /// A generated property, either auto-implemented or expression-bodied:
     /// <code>
-    /// SourceGen.NewProperty("Gameplay", "GameplayActions").Public().GetOnly()
-    /// SourceGen.NewProperty("Gameplay", "GameplayActions").Public().Static().Expression("DefaultPlayer.Gameplay()")
-    /// SourceGen.NewProperty("Enabled", "bool").Public().WithAccessors("runtime.Enabled", "runtime.Enabled = value")
+    /// SourceGen.NewProperty("Gameplay").OfType("GameplayActions").Public().GetOnly()
+    /// SourceGen.NewProperty("Gameplay").OfType("GameplayActions").Public().Static().Expression("DefaultPlayer.Gameplay()")
+    /// SourceGen.NewProperty("Enabled").OfType&lt;bool&gt;().Public().WithAccessors("runtime.Enabled", "runtime.Enabled = value")
     /// </code>
     /// Auto-property forms are <see cref="GetOnly"/>, <see cref="GetSet"/> and
     /// <see cref="GetPrivateSet"/>; the others give the accessors an expression body.
@@ -20,7 +20,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     {
         private const string GETTER_ARROW = "=>";
 
-        private readonly TypeRef propertyType;
+        private TypeRef propertyType = TypeRef.Void;
 
         private string expression;
         private string getterExpression;
@@ -31,10 +31,16 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         private bool isSetterPrivate;
 
-        internal GeneratableProperty(string name, TypeRef propertyType) : base(name, AccessModifier.Private, isStatic: false)
+        internal GeneratableProperty(string name) : base(name) { }
+
+        /// <summary>The property's type. Required: a property with no type cannot compile.</summary>
+        public GeneratableProperty OfType(TypeRef type)
         {
-            this.propertyType = propertyType;
+            propertyType = type;
+            return this;
         }
+
+        public GeneratableProperty OfType<T>() => OfType(TypeRef.From(typeof(T)));
 
         public GeneratableProperty WithAccess(AccessModifier modifier)
         {

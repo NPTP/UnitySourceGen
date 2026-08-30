@@ -10,8 +10,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// An event, either field-like ("public event Action OnFoo;") or with accessors
     /// ("public event Action OnFoo { add =&gt; target += value; remove =&gt; target -= value; }").
     /// <code>
-    /// SourceGen.NewEvent("OnControlsUpdated").Public().Static().Of("Action")
-    /// SourceGen.NewEvent("OnControlsUpdated").Public().Static().Of("Action").Forwarding("Runtime.OnControlsUpdated")
+    /// SourceGen.NewEvent("OnControlsUpdated").Public().Static().OfType("Action")
+    /// SourceGen.NewEvent("OnControlsUpdated").Public().Static().OfType("Action").Forwarding("Runtime.OnControlsUpdated")
     /// </code>
     /// </summary>
     public class GeneratableEvent : GeneratableBase
@@ -26,16 +26,16 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal override IEnumerable<TypeRef> ReferencedTypes => new[] { handlerType };
 
-        internal GeneratableEvent(string name) : base(name, AccessModifier.Private, isStatic: false) { }
+        internal GeneratableEvent(string name) : base(name) { }
 
         /// <summary>The delegate type of the event, e.g. "Action" or "Action&lt;InputPlayer&gt;".</summary>
-        public GeneratableEvent Of(TypeRef delegateType)
+        public GeneratableEvent OfType(TypeRef delegateType)
         {
             handlerType = delegateType;
             return this;
         }
 
-        public GeneratableEvent Of<T>() => Of(TypeRef.From(typeof(T)));
+        public GeneratableEvent OfType<T>() => OfType(TypeRef.From(typeof(T)));
 
         public GeneratableEvent WithAccess(AccessModifier modifier)
         {

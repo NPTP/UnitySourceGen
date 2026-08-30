@@ -27,7 +27,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private GeneratableParameter(TypeRef parameterType, string name, ParameterModifier modifier, string defaultValueExpression)
         {
             this.parameterType = parameterType;
-            this.name = name;
+            this.name = GeneratedIdentifier.SanitizeAsCamelCase(name);
             this.modifier = modifier;
             this.defaultValueExpression = defaultValueExpression;
         }

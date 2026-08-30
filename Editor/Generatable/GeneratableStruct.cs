@@ -10,8 +10,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     {
         protected override TypeDefinition TypeDefinition => TypeDefinition.Struct;
 
-        internal GeneratableStruct(string name, AccessModifier accessModifier) : base(name, accessModifier, isStatic: false)
-        {
-        }
+        internal GeneratableStruct(string name) : base(name) { }
     }
 }

@@ -13,7 +13,11 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         internal SortedSet<string> Directives { get; } = new();
         internal string Namespace { get; set; }
 
-        internal GeneratableDefinition(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
+        /// <summary>A top-level type with no access modifier set is internal, as in C#.</summary>
+        internal GeneratableDefinition(string name) : base(name)
+        {
+            AccessModifier = AccessModifier.Internal;
+        }
 
         public GeneratableDefinition InNamespace(string @namespace)
         {
