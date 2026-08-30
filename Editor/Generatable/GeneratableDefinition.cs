@@ -6,8 +6,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 {
     public abstract class GeneratableDefinition : GeneratableBase
     {
-        protected const string COMMA = ",";
-        
         // TODO: Adding directives, fields, types etc should auto-add directives
         internal SortedSet<string> Directives { get; } = new();
         internal string Namespace { get; set; }

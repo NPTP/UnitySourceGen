@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Syntax;
@@ -8,15 +9,16 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     public class GeneratableMethod : GeneratableBase
     {
         private readonly TypeRef returnType;
+        private readonly GeneratableParameter[] parameters;
 
         private IEnumerable<string> Body { get; }
 
-        // TODO: Support parameters
-
-        internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic, params string[] body)
+        internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
+            GeneratableParameter[] parameters, params string[] body)
             : base(name, accessModifier, isStatic)
         {
             this.returnType = returnType;
+            this.parameters = parameters ?? GeneratableParameter.None;
             Body = body;
         }
 
@@ -47,7 +49,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             if (IsStatic) methodSignature.Append(SPACE + STATIC);
             methodSignature.Append(SPACE + returnType.Name);
             methodSignature.Append(SPACE + Name);
-            methodSignature.Append("()");
+            methodSignature.Append("(" + string.Join(COMMA + SPACE, parameters.Select(parameter => parameter.GetStringRepresentation())) + ")");
 
             AddLine(sb, indent, methodSignature.ToString());
         }
@@ -67,7 +69,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// </summary>
     public class GeneratableMethod<T> : GeneratableMethod
     {
-        internal GeneratableMethod(string name, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic, params string[] body)
-            : base(name, TypeRef.From(typeof(T)), accessModifier, inheritanceModifier, isStatic, body) { }
+        internal GeneratableMethod(string name, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
+            GeneratableParameter[] parameters, params string[] body)
+            : base(name, TypeRef.From(typeof(T)), accessModifier, inheritanceModifier, isStatic, parameters, body) { }
     }
 }

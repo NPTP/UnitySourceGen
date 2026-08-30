@@ -86,10 +86,27 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         public static GeneratableTypeDefinition WithStaticMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, params string[] body) =>
             gen.WithStaticMethod(TypeRef.From(typeof(T)), methodName, accessModifier, body);
 
-        public static GeneratableTypeDefinition WithStaticMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, params string[] body)
+        public static GeneratableTypeDefinition WithStaticMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, params string[] body) =>
+            gen.WithStaticMethod(returnType, methodName, accessModifier, GeneratableParameter.None, body);
+
+        public static GeneratableTypeDefinition WithStaticMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableParameter[] parameters, params string[] body)
         {
             if (!methodName.CheckValidGenerationName()) return gen;
-            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, body));
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, parameters, body));
+            return gen;
+        }
+
+        /// <summary>
+        /// An extension method: a static method whose first parameter carries the "this" modifier. The
+        /// containing class must be static.
+        /// </summary>
+        public static GeneratableTypeDefinition WithExtensionMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableParameter extendedParameter, GeneratableParameter[] additionalParameters, params string[] body)
+        {
+            if (!methodName.CheckValidGenerationName()) return gen;
+            GeneratableParameter[] allParameters = new GeneratableParameter[1 + (additionalParameters?.Length ?? 0)];
+            allParameters[0] = extendedParameter;
+            additionalParameters?.CopyTo(allParameters, 1);
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, allParameters, body));
             return gen;
         }
 
@@ -99,10 +116,13 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body) =>
             gen.WithMethod(TypeRef.From(typeof(T)), methodName, accessModifier, inheritanceModifier, body);
 
-        public static GeneratableTypeDefinition WithMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body)
+        public static GeneratableTypeDefinition WithMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body) =>
+            gen.WithMethod(returnType, methodName, accessModifier, inheritanceModifier, GeneratableParameter.None, body);
+
+        public static GeneratableTypeDefinition WithMethod(this GeneratableTypeDefinition gen, TypeRef returnType, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, GeneratableParameter[] parameters, params string[] body)
         {
             if (!methodName.CheckValidGenerationName()) return gen;
-            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, inheritanceModifier, isStatic: false, body));
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, inheritanceModifier, isStatic: false, parameters, body));
             return gen;
         }
     }

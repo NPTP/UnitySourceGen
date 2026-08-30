@@ -69,10 +69,13 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         public static GeneratableCodeChunk AddStaticMethod<T>(this GeneratableCodeChunk gen, string methodName, AccessModifier accessModifier, params string[] body) =>
             gen.AddStaticMethod(TypeRef.From(typeof(T)), methodName, accessModifier, body);
 
-        public static GeneratableCodeChunk AddStaticMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, params string[] body)
+        public static GeneratableCodeChunk AddStaticMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, params string[] body) =>
+            gen.AddStaticMethod(returnType, methodName, accessModifier, GeneratableParameter.None, body);
+
+        public static GeneratableCodeChunk AddStaticMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, GeneratableParameter[] parameters, params string[] body)
         {
             if (!methodName.CheckValidGenerationName()) return gen;
-            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, body));
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, InheritanceModifier.None, isStatic: true, parameters, body));
             return gen;
         }
 
@@ -82,10 +85,13 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         public static GeneratableCodeChunk AddMethod<T>(this GeneratableCodeChunk gen, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body) =>
             gen.AddMethod(TypeRef.From(typeof(T)), methodName, accessModifier, inheritanceModifier, body);
 
-        public static GeneratableCodeChunk AddMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body)
+        public static GeneratableCodeChunk AddMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body) =>
+            gen.AddMethod(returnType, methodName, accessModifier, inheritanceModifier, GeneratableParameter.None, body);
+
+        public static GeneratableCodeChunk AddMethod(this GeneratableCodeChunk gen, TypeRef returnType, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, GeneratableParameter[] parameters, params string[] body)
         {
             if (!methodName.CheckValidGenerationName()) return gen;
-            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, inheritanceModifier, isStatic: false, body));
+            gen.AddMethod(new GeneratableMethod(methodName, returnType, accessModifier, inheritanceModifier, isStatic: false, parameters, body));
             return gen;
         }
 
