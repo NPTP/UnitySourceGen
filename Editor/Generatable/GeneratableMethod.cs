@@ -94,15 +94,4 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return methodSignature.ToString();
         }
     }
-
-    /// <summary>
-    /// A method whose return type is a real compiled type. Use the non-generic
-    /// <see cref="GeneratableMethod"/> to return a type that is itself being generated.
-    /// </summary>
-    public class GeneratableMethod<T> : GeneratableMethod
-    {
-        internal GeneratableMethod(string name, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
-            GeneratableParameter[] parameters, params string[] body)
-            : base(name, TypeRef.From(typeof(T)), accessModifier, inheritanceModifier, isStatic, parameters, isExpressionBodied: false, body) { }
-    }
 }
