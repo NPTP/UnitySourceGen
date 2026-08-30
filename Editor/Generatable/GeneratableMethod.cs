@@ -75,6 +75,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         public GeneratableMethod Returning<T>() => Returning(TypeRef.From(typeof(T)));
 
+        /// <summary>
+        /// Returns void. This exists because "void" is not a valid generic type argument, so
+        /// Returning&lt;void&gt;() cannot be written. Void is also the default, so this is for explicitness.
+        /// </summary>
+        public GeneratableMethod ReturningVoid() => Returning(TypeRef.Void);
+
         public GeneratableMethod WithAccess(AccessModifier modifier)
         {
             AccessModifier = modifier;
