@@ -17,9 +17,13 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
     /// TypeRef b = TypeRef.From(typeof(Vector2)); // a type that already exists
     /// TypeRef c = TypeRef.Generic("List", a);    // "List&lt;PlayerActions&gt;"
     /// </code>
+    /// Names are sanitized: identifiers inside them are made valid, while the punctuation that shapes
+    /// generics, arrays and nullables is preserved.
+    /// <para>
     /// Strings convert implicitly, so a generated type name can be passed anywhere a TypeRef is taken.
     /// An existing type does not: the generic overloads - NewField&lt;T&gt;, Returning&lt;T&gt; and the
     /// rest - are the way to name one, so there is never a second redundant signature taking a typeof.
+    /// </para>
     /// A TypeRef built from a real type also knows its <see cref="Namespace"/>, which is what lets a
     /// generated file work out its own using directives. One built from a string cannot, so that directive
     /// has to be added by hand with WithDirective.
@@ -65,15 +69,14 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
 
         public static TypeRef Void => new(VOID);
 
-        public TypeRef(string name)
-        {
-            Name = string.IsNullOrWhiteSpace(name) ? VOID : name.Trim();
-            Namespace = null;
-        }
+        public TypeRef(string name) : this(name, null) { }
 
         private TypeRef(string name, string typeNamespace)
         {
-            Name = string.IsNullOrWhiteSpace(name) ? VOID : name.Trim();
+            // Type names are frequently built from asset names, so the identifiers inside them are
+            // sanitized here. The punctuation that shapes the name - generics, arrays, nullables - is left
+            // intact, and a name coming from a real Type is already valid so nothing changes.
+            Name = string.IsNullOrWhiteSpace(name) ? VOID : GeneratedIdentifier.SanitizeTypeName(name.Trim());
             Namespace = typeNamespace;
         }
 

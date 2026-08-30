@@ -69,7 +69,9 @@ TypeRef.Generic("List", "GameplayActions")            // List<GameplayActions>
 ```
 
 Names taken from assets or config are sanitized into valid identifiers automatically, so
-`"Keyboard&Mouse"` becomes `KeyboardMouse` and `"class"` becomes `@class`.
+`"Keyboard&Mouse"` becomes `KeyboardMouse` and `"class"` becomes `@class`. Type names are sanitized too,
+per identifier, so the punctuation that shapes generics, arrays and nullables survives: `"List<My-Type>"`
+becomes `List<MyType>` and `"int?"` is left alone.
 
 ## Files with several types
 

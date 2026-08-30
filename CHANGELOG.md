@@ -4,7 +4,7 @@
 1.0.0
 - Fluent API throughout: everything is created from `SourceGen` with a name and configured on itself. Builder and extension classes removed
 - Constructors take only what is required; a field or property takes its type, everything else has a C# default
-- Names are sanitized into valid identifiers automatically
+- Names are sanitized into valid identifiers automatically, including type names, which are sanitized per identifier so generics, arrays and nullables survive
 - `TypeRef` can name types that do not exist yet, so generated types can reference each other. Handles generics, arrays and nullables
 - Methods support parameters, generic type parameters with constraints, extension methods, expression bodies, constructors and explicit interface implementations
 - Events, properties with accessor bodies, and attributes with arguments

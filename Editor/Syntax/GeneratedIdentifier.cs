@@ -13,8 +13,8 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
     /// GeneratedIdentifier.Sanitize("class")           // @class
     /// GeneratedIdentifier.Sanitize("!!!")             // Unnamed
     /// </code>
-    /// Type names are deliberately not sanitized: they can legitimately contain generics, arrays and
-    /// nullables, so <see cref="TypeRef"/> takes them as written.
+    /// Type names go through <see cref="SanitizeTypeName"/> instead, which sanitizes each identifier in
+    /// the name while leaving the punctuation that makes up generics, arrays and nullables intact.
     /// </summary>
     public static class GeneratedIdentifier
     {
@@ -34,6 +34,15 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
             "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof", "stackalloc", "static",
             "string", "struct", "switch", "this", "throw", "true", "try", "typeof", "uint", "ulong",
             "unchecked", "unsafe", "ushort", "using", "virtual", "void", "volatile", "while"
+        };
+
+        /// <summary>
+        /// The reserved words that are also legitimate type names, so must never be escaped.
+        /// </summary>
+        private static readonly HashSet<string> predefinedTypeKeywords = new()
+        {
+            "bool", "byte", "sbyte", "char", "decimal", "double", "float", "int", "uint", "nint", "nuint",
+            "long", "ulong", "short", "ushort", "object", "string", "void"
         };
 
         /// <summary>
@@ -63,6 +72,77 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
 
             string identifier = sb.ToString();
             return reservedKeywords.Contains(identifier) ? ESCAPE + identifier : identifier;
+        }
+
+        /// <summary>
+        /// Sanitize a type name. Unlike a plain identifier a type name is structured - it can contain
+        /// generic arguments, array ranks, nullable marks and namespace qualifiers - so each identifier
+        /// within it is sanitized and everything holding them together is left alone.
+        /// <code>
+        /// SanitizeTypeName("Keyboard&amp;Mouse Actions")  // KeyboardMouseActions
+        /// SanitizeTypeName("List&lt;My-Type&gt;")            // List&lt;MyType&gt;
+        /// SanitizeTypeName("int?")                     // int?      (a type keyword is not escaped)
+        /// SanitizeTypeName("BindingInfo[]")            // BindingInfo[]
+        /// </code>
+        /// </summary>
+        public static string SanitizeTypeName(string rawTypeName)
+        {
+            if (string.IsNullOrEmpty(rawTypeName))
+            {
+                return FALLBACK;
+            }
+
+            StringBuilder result = new();
+            StringBuilder identifier = new();
+
+            foreach (char c in rawTypeName)
+            {
+                if (char.IsLetterOrDigit(c) || c == '_')
+                {
+                    identifier.Append(c);
+                }
+                else if (IsTypeNameStructure(c))
+                {
+                    AppendSanitizedIdentifier(result, identifier);
+
+                    // A space is only meaningful after a comma, separating generic arguments. Anywhere
+                    // else it would split one name into two, so it is dropped.
+                    if (c != ' ' || (result.Length > 0 && result[result.Length - 1] == ','))
+                    {
+                        result.Append(c);
+                    }
+                }
+
+                // Anything else - punctuation that means nothing in a type name - is dropped.
+            }
+
+            AppendSanitizedIdentifier(result, identifier);
+            return result.Length == 0 ? FALLBACK : result.ToString();
+        }
+
+        /// <summary>The characters that give a type name its shape, rather than naming anything.</summary>
+        private static bool IsTypeNameStructure(char c) => c is '<' or '>' or '[' or ']' or ',' or '.' or '?' or ' ';
+
+        private static void AppendSanitizedIdentifier(StringBuilder result, StringBuilder identifier)
+        {
+            if (identifier.Length == 0)
+            {
+                return;
+            }
+
+            while (identifier.Length > 0 && char.IsDigit(identifier[0])) identifier.Remove(0, 1);
+
+            if (identifier.Length > 0)
+            {
+                string segment = identifier.ToString();
+
+                // Predefined type keywords - int, string, void - are legitimate type names and must not
+                // be escaped. Any other reserved word used as a type name does need escaping.
+                bool needsEscape = reservedKeywords.Contains(segment) && !predefinedTypeKeywords.Contains(segment);
+                result.Append(needsEscape ? ESCAPE + segment : segment);
+            }
+
+            identifier.Clear();
         }
 
         /// <summary>Sanitize, then make the first character lowercase, for a field or parameter name.</summary>
