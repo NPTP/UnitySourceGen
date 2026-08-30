@@ -1,6 +1,18 @@
 # Unity Source Gen
 ## Changelog
 
+1.0.0
+- Fluent API throughout: everything is created from `SourceGen` with a name and configured on itself. Builder and extension classes removed
+- Constructors take only what is required; a field or property takes its type, everything else has a C# default
+- Names are sanitized into valid identifiers automatically
+- `TypeRef` can name types that do not exist yet, so generated types can reference each other. Handles generics, arrays and nullables
+- Methods support parameters, generic type parameters with constraints, extension methods, expression bodies, constructors and explicit interface implementations
+- Events, properties with accessor bodies, and attributes with arguments
+- Multiple types and namespaces per file, with using directives collected automatically
+- Conditional compilation blocks on files, types and methods
+- Write any generatable to any path in Assets; unchanged files are skipped rather than rewritten, and nothing is logged per file
+- Duplicate members are detected by signature, so overloads survive; a colliding member replaces the existing one
+
 0.1.6
 - Make some methods `internal` which shouldn't have been visible to other assemblies
 
