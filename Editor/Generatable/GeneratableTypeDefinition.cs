@@ -260,10 +260,22 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             }
         }
 
+        /// <summary>
+        /// Add the member, replacing any existing one it would collide with. Replacing rather than
+        /// silently skipping means a generator can add a default member and then override it, and that
+        /// building the same type twice cannot quietly keep the stale version.
+        /// </summary>
         private void Add<T>(T generatable, List<T> generatableList) where T : GeneratableBase
         {
-            if (generatable == null || generatableList.Any(existing => generatable.DedupeKey == existing.DedupeKey))
+            if (generatable == null)
             {
+                return;
+            }
+
+            int existingIndex = generatableList.FindIndex(existing => generatable.DedupeKey == existing.DedupeKey);
+            if (existingIndex >= 0)
+            {
+                generatableList[existingIndex] = generatable;
                 return;
             }
 
