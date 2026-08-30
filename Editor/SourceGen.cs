@@ -1,11 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Modifiable;
 using NPTP.UnitySourceGen.Editor.ScriptWriting;
-using NPTP.UnitySourceGen.Editor.Syntax;
 using UnityEngine;
 
 namespace NPTP.UnitySourceGen.Editor

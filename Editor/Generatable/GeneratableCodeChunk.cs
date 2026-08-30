@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Text;
-using NPTP.UnitySourceGen.Editor.Enums;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {

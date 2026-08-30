@@ -17,9 +17,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// </summary>
     public readonly struct GeneratableTypeParameter
     {
-        /// <summary>No type parameters, i.e. a non-generic method.</summary>
-        public static GeneratableTypeParameter[] None => Array.Empty<GeneratableTypeParameter>();
-
         // Keyword constraints, so callers do not have to remember the exact spelling.
         public static TypeRef Class => new("class");
         public static TypeRef Struct => new("struct");

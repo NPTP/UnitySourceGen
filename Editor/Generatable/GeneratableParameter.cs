@@ -15,9 +15,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// </summary>
     public readonly struct GeneratableParameter
     {
-        /// <summary>An empty parameter list.</summary>
-        public static GeneratableParameter[] None => System.Array.Empty<GeneratableParameter>();
-
         private readonly TypeRef parameterType;
         private readonly string name;
         private readonly ParameterModifier modifier;

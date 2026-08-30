@@ -65,15 +65,6 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
             return reservedKeywords.Contains(identifier) ? ESCAPE + identifier : identifier;
         }
 
-        /// <summary>Sanitize, then make the first character uppercase, for a type or member name.</summary>
-        public static string SanitizeAsPascalCase(string rawName)
-        {
-            string identifier = Sanitize(rawName);
-            return identifier[0] == ESCAPE || char.IsUpper(identifier[0])
-                ? identifier
-                : char.ToUpperInvariant(identifier[0]) + identifier.Substring(1);
-        }
-
         /// <summary>Sanitize, then make the first character lowercase, for a field or parameter name.</summary>
         public static string SanitizeAsCamelCase(string rawName)
         {
@@ -82,8 +73,5 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
                 ? identifier
                 : char.ToLowerInvariant(identifier[0]) + identifier.Substring(1);
         }
-
-        /// <summary>True when the name had to be changed, i.e. the generated member will not read as authored.</summary>
-        public static bool WasAltered(string rawName) => rawName != Sanitize(rawName);
     }
 }

@@ -108,7 +108,13 @@ namespace NPTP.UnitySourceGen.Editor.Modifiable
 
         internal void AddComment(string comment)
         {
-            scriptLines.Add(new GeneratableComment(comment));
+            GeneratableComment generatableComment = new(comment);
+            if (scriptLines.Any(line => generatableComment.Matches(line)))
+            {
+                return;
+            }
+
+            scriptLines.Add(generatableComment);
         }
 
         private void RemoveLines(string content)
