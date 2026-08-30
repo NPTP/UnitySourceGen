@@ -20,7 +20,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     public class GeneratableField : GeneratableBase
     {
         private const string CONST = "const";
-        private const string READONLY = "readonly";
         private const string SERIALIZE_FIELD = "SerializeField";
 
         private readonly TypeRef fieldType;

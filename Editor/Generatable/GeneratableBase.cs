@@ -31,6 +31,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         protected const string SEMICOLON = ";";
         protected const string COMMA = ",";
         protected const string STATIC = "static";
+        protected const string READONLY = "readonly";
 
         private const string OPEN_BRACE = "{";
         private const string CLOSE_BRACE = "}";

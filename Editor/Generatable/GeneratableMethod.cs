@@ -21,13 +21,17 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// <para>
     /// The same type also covers constructors (<see cref="AsConstructor"/>), extension methods
     /// (<see cref="Extending"/>), explicit interface implementations
-    /// (<see cref="ExplicitlyImplementing(Syntax.TypeRef)"/>), and generic methods with constraints
+    /// (<see cref="ExplicitlyImplementing(Syntax.TypeRef)"/>), conversion operators
+    /// (<see cref="AsImplicitConversion"/>), and generic methods with constraints
     /// (<see cref="Generic"/>).
     /// </para>
     /// </summary>
     public class GeneratableMethod : GeneratableBase
     {
         private const string EXPRESSION_ARROW = "=>";
+        private const string IMPLICIT = "implicit";
+        private const string EXPLICIT = "explicit";
+        private const string OPERATOR = "operator";
 
         private readonly List<GeneratableTypeParameter> typeParameters = new();
         private readonly List<GeneratableParameter> parameters = new();
@@ -46,6 +50,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private bool isConstructor;
         private string baseConstructorArguments;
         private bool isExpressionBodied;
+
+        /// <summary>
+        /// When set, the method is written as a conversion operator - "public static implicit operator
+        /// Name(...)" - whose target type is the method's own name.
+        /// </summary>
+        private string conversionKeyword;
 
         internal GeneratableMethod(string name) : base(name) { }
 
@@ -119,6 +129,25 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         {
             isConstructor = true;
             baseConstructorArguments = baseArguments;
+            return this;
+        }
+
+        /// <summary>
+        /// Write this as an implicit conversion operator to the type this method is named after, e.g.
+        /// SourceGen.NewMethod("InputPlayerRef").AsImplicitConversion() with a single parameter of the type
+        /// being converted from. Conversion operators are always public and static, so any access modifier
+        /// set here is ignored.
+        /// </summary>
+        public GeneratableMethod AsImplicitConversion()
+        {
+            conversionKeyword = IMPLICIT;
+            return this;
+        }
+
+        /// <summary>As <see cref="AsImplicitConversion"/>, but requiring a cast at the call site.</summary>
+        public GeneratableMethod AsExplicitConversion()
+        {
+            conversionKeyword = EXPLICIT;
             return this;
         }
 
@@ -255,6 +284,14 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             if (isConstructor)
             {
                 methodSignature.Append(AccessModifier.AsString());
+                methodSignature.Append(SPACE + Name);
+            }
+            else if (conversionKeyword != null)
+            {
+                methodSignature.Append(AccessModifier.Public.AsString());
+                methodSignature.Append(SPACE + STATIC);
+                methodSignature.Append(SPACE + conversionKeyword);
+                methodSignature.Append(SPACE + OPERATOR);
                 methodSignature.Append(SPACE + Name);
             }
             else if (isExplicitImplementation)
