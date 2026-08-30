@@ -2,9 +2,9 @@
 
 Easy source generation for Unity with simple API, geared towards Unity usage.
 
-Everything is created from `SourceGen` with a name, then configured on itself. Nothing is required except
-values that could not compile without them, so a field or property takes its type up front and the rest
-follows C# defaults: members are private, types internal, methods return void.
+Everything is created from `SourceGen`. Just give it a name, then configure it with method chaining syntax.
+Nothing is _required_ except values that wouldn't compile without them, such as fields & properties requiring
+a type up front. The rest follows C# defaults: members are private, types internal, methods return void.
 
 ## Example
 
@@ -90,8 +90,7 @@ hoisted to the top of the file.
 
 `SourceGen.WriteToPath` returns whether the file was written, was already up to date, or failed. A file
 whose contents have not changed is left alone, so regenerating does not force Unity to reimport and
-reload the domain. Nothing is logged per file, so a generator producing many of them can report a single
-summary of its own.
+reload the domain.
 
 ## Modifying an existing script
 
