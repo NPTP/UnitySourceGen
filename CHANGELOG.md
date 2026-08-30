@@ -1,6 +1,10 @@
 # Unity Source Gen
 ## Changelog
 
+1.1.0
+- Conversion operators: `AsImplicitConversion` and `AsExplicitConversion` on a method, whose name is the type converted to
+- `ReadOnly` on a struct
+
 1.0.1
 - Add `GeneratedIdentifier.SanitizeAsPascalCase`, the counterpart to the existing camelCase overload
 
