@@ -1,6 +1,9 @@
 # Unity Source Gen
 ## Changelog
 
+1.0.1
+- Add `GeneratedIdentifier.SanitizeAsPascalCase`, the counterpart to the existing camelCase overload
+
 1.0.0
 - Fluent API throughout: everything is created from `SourceGen` with a name and configured on itself. Builder and extension classes removed
 - Constructors take only what is required; a field or property takes its type, everything else has a C# default
