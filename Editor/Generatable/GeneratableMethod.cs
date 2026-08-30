@@ -36,6 +36,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private TypeRef explicitInterface;
 
         private InheritanceModifier inheritanceModifier = InheritanceModifier.None;
+        private bool isConstructor;
+        private string baseConstructorArguments;
         private bool isExpressionBodied;
 
         internal GeneratableMethod(string name) : base(name, AccessModifier.Private, isStatic: false) { }
@@ -77,6 +79,17 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         public GeneratableMethod WithInheritanceModifier(InheritanceModifier modifier)
         {
             inheritanceModifier = modifier;
+            return this;
+        }
+
+        /// <summary>
+        /// Write this as a constructor of the type it belongs to: no return type, and the name is the
+        /// type''s own name. Pass base constructor arguments to chain, e.g. ": base(id, asset)".
+        /// </summary>
+        public GeneratableMethod AsConstructor(string baseArguments = null)
+        {
+            isConstructor = true;
+            baseConstructorArguments = baseArguments;
             return this;
         }
 
@@ -208,7 +221,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
             bool isExplicitImplementation = !string.IsNullOrEmpty(explicitInterface.Name) && !explicitInterface.IsVoid;
 
-            if (isExplicitImplementation)
+            if (isConstructor)
+            {
+                methodSignature.Append(AccessModifier.AsString());
+                methodSignature.Append(SPACE + Name);
+            }
+            else if (isExplicitImplementation)
             {
                 methodSignature.Append(returnType.Name);
                 methodSignature.Append(SPACE + explicitInterface.Name + "." + Name);
@@ -228,6 +246,11 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             }
 
             methodSignature.Append("(" + string.Join(COMMA + SPACE, parameters.Select(parameter => parameter.GetStringRepresentation())) + ")");
+
+            if (isConstructor && !string.IsNullOrEmpty(baseConstructorArguments))
+            {
+                methodSignature.Append(SPACE + ":" + SPACE + baseConstructorArguments);
+            }
 
             foreach (GeneratableTypeParameter typeParameter in typeParameters.Where(typeParameter => typeParameter.HasConstraints))
             {
