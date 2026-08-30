@@ -1,6 +1,9 @@
 # Unity Source Gen
 ## Changelog
 
+1.1.1
+- Tell constructors, conversion operators, explicit implementations and plain methods apart when deduping, so members sharing a name and parameter list no longer replace each other
+
 1.1.0
 - Conversion operators: `AsImplicitConversion` and `AsExplicitConversion` on a method, whose name is the type converted to
 - `ReadOnly` on a struct
