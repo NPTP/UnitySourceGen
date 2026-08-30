@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NPTP.UnitySourceGen.Editor.Extensions;
+using NPTP.UnitySourceGen.Editor.Extensions.Internal;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Generatable.Directives;
 using NPTP.UnitySourceGen.Editor.Generatable.Other;

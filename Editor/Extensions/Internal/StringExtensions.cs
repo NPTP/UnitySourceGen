@@ -1,11 +1,11 @@
 using System;
 using UnityEngine;
 
-namespace NPTP.UnitySourceGen.Editor.Extensions
+namespace NPTP.UnitySourceGen.Editor.Extensions.Internal
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
-        public static string UppercaseFirst(this string s)
+        internal static string UppercaseFirst(this string s)
         {
             if (string.IsNullOrEmpty(s))
                 return string.Empty;
@@ -15,7 +15,7 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return  firstChar + s[1..];
         }
         
-        public static string LowercaseFirst(this string s)
+        internal static string LowercaseFirst(this string s)
         {
             if (string.IsNullOrEmpty(s))
                 return string.Empty;
@@ -25,12 +25,12 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return  firstChar + s[1..];
         }
 
-        public static string StringValueOrEmpty(this string s)
+        internal static string StringValueOrEmpty(this string s)
         {
             return string.IsNullOrEmpty(s) ? string.Empty : s;
         }
         
-        public static bool ContainsAll(this string s, params string[] others)
+        internal static bool ContainsAll(this string s, params string[] others)
         {
             if (string.IsNullOrEmpty(s) || others.Length == 0)
                 return false;
@@ -44,7 +44,7 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             return true;
         }
         
-        public static int GetIndentLevel(this string s)
+        internal static int GetIndentLevel(this string s)
         {
             if (string.IsNullOrEmpty(s))
                 return 0;
