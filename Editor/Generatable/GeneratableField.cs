@@ -12,9 +12,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     {
         private readonly TypeRef fieldType;
         private readonly string initialValueExpression;
-        private List<AddableAttribute> attributes;
 
-        private bool HasAttributes => attributes is { Count: > 0 };
         private bool HasInitialValue => initialValueExpression != null;
 
         /// <param name="initialValueExpression">
@@ -28,26 +26,11 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             this.initialValueExpression = initialValueExpression;
         }
 
-        public void AddAttribute(AddableAttribute addableAttribute)
-        {
-            if (attributes != null && attributes.Any(a => Equals(a, addableAttribute)))
-            {
-                return;
-            }
-
-            attributes ??= new();
-            attributes.Add(addableAttribute);
-        }
-
         public override string GenerateStringRepresentation()
         {
             StringBuilder field = new();
 
-            if (HasAttributes)
-            {
-                foreach (AddableAttribute attribute in attributes) field.Append(attribute.GetStringRepresentation() + SPACE);
-            }
-
+            field.Append(GetAttributesInline());
             field.Append(AccessModifier.AsString());
             PrependAdditionalLabels(field);
             if (IsStatic) field.Append(SPACE + STATIC);

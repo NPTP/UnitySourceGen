@@ -58,16 +58,18 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         public override string GenerateStringRepresentation()
         {
+            int indent = 0;
+            StringBuilder sb = new();
+
+            AddAttributeLines(sb, indent);
+
             if (isExpressionBodied)
             {
                 // Deliberately not AppendLine: a single-line member has no trailing newline, so it is not
                 // mistaken for a block with an empty last line when split back into lines.
                 string expression = body.Length > 0 ? body[0] : string.Empty;
-                return $"{BuildSignature()} {EXPRESSION_ARROW} {expression}{SEMICOLON}";
+                return sb + $"{BuildSignature()} {EXPRESSION_ARROW} {expression}{SEMICOLON}";
             }
-
-            int indent = 0;
-            StringBuilder sb = new();
 
             AddLine(sb, indent, BuildSignature());
             AddOpenBrace(sb, indent);

@@ -2,6 +2,7 @@ using System;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Extensions.Internal;
 using NPTP.UnitySourceGen.Editor.Generatable;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
 using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Extensions
@@ -118,6 +119,17 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
             gen.AddEvent(builder.Build());
             return gen;
         }
+
+
+        /// <summary>An attribute on the type itself, written on its own line above the signature.</summary>
+        public static GeneratableTypeDefinition WithAttribute(this GeneratableTypeDefinition gen, AddableAttribute attribute)
+        {
+            gen.AddAttribute(attribute);
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithAttribute(this GeneratableTypeDefinition gen, string attributeName, params string[] arguments) =>
+            gen.WithAttribute(new AddableAttribute(attributeName, arguments));
 
     }
 }

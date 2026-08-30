@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
 using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
@@ -20,6 +22,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private TypeRef handlerType = new("Action");
         private AccessModifier accessModifier = AccessModifier.Private;
         private bool isStatic;
+        private readonly List<AddableAttribute> attributes = new();
         private string addExpression;
         private string removeExpression;
 
@@ -48,6 +51,15 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         public GeneratableEventBuilder Protected() => WithAccess(AccessModifier.Protected);
         public GeneratableEventBuilder Internal() => WithAccess(AccessModifier.Internal);
 
+        public GeneratableEventBuilder WithAttribute(AddableAttribute attribute)
+        {
+            if (attribute != null) attributes.Add(attribute);
+            return this;
+        }
+
+        public GeneratableEventBuilder WithAttribute(string attributeName, params string[] arguments) =>
+            WithAttribute(new AddableAttribute(attributeName, arguments));
+
         public GeneratableEventBuilder Static()
         {
             isStatic = true;
@@ -73,6 +85,11 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return this;
         }
 
-        internal GeneratableEvent Build() => new(name, handlerType, accessModifier, isStatic, addExpression, removeExpression);
+        internal GeneratableEvent Build()
+        {
+            GeneratableEvent generatableEvent = new(name, handlerType, accessModifier, isStatic, addExpression, removeExpression);
+            foreach (AddableAttribute attribute in attributes) generatableEvent.AddAttribute(attribute);
+            return generatableEvent;
+        }
     }
 }

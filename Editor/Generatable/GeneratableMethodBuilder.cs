@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
 using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
@@ -23,6 +24,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private readonly List<GeneratableTypeParameter> typeParameters = new();
         private readonly List<GeneratableParameter> parameters = new();
         private readonly List<string> bodyLines = new();
+        private readonly List<AddableAttribute> attributes = new();
 
         private TypeRef returnType = TypeRef.Void;
         private TypeRef explicitInterface;
@@ -56,6 +58,16 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         public GeneratableMethodBuilder Private() => WithAccess(AccessModifier.Private);
         public GeneratableMethodBuilder Protected() => WithAccess(AccessModifier.Protected);
         public GeneratableMethodBuilder Internal() => WithAccess(AccessModifier.Internal);
+
+        /// <summary>An attribute on the method, written on its own line above the signature.</summary>
+        public GeneratableMethodBuilder WithAttribute(AddableAttribute attribute)
+        {
+            if (attribute != null) attributes.Add(attribute);
+            return this;
+        }
+
+        public GeneratableMethodBuilder WithAttribute(string attributeName, params string[] arguments) =>
+            WithAttribute(new AddableAttribute(attributeName, arguments));
 
         public GeneratableMethodBuilder Static()
         {
@@ -136,8 +148,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal GeneratableMethod Build()
         {
-            return new GeneratableMethod(name, returnType, accessModifier, inheritanceModifier, isStatic,
+            GeneratableMethod method = new(name, returnType, accessModifier, inheritanceModifier, isStatic,
                 typeParameters.ToArray(), parameters.ToArray(), explicitInterface, isExpressionBodied, bodyLines.ToArray());
+
+            foreach (AddableAttribute attribute in attributes) method.AddAttribute(attribute);
+
+            return method;
         }
     }
 }

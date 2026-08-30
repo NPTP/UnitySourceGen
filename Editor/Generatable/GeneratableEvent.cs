@@ -30,6 +30,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         {
             StringBuilder sb = new();
 
+            sb.Append(GetAttributesInline());
             sb.Append(AccessModifier.AsString());
             if (IsStatic) sb.Append(SPACE + STATIC);
             sb.Append(SPACE + EVENT);
