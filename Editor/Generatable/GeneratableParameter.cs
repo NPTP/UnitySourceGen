@@ -60,6 +60,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         /// <summary>The parameter''s type name, used to tell overloads apart.</summary>
         internal string TypeName => parameterType.Name;
 
+        internal TypeRef Type => parameterType;
+
         public string GetStringRepresentation()
         {
             string modifierText = modifier.AsString();

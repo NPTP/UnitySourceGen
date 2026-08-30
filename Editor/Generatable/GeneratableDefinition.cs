@@ -10,7 +10,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     /// </summary>
     public abstract class GeneratableDefinition : GeneratableBase
     {
-        // TODO: Adding directives, fields, types etc should auto-add directives
         internal SortedSet<string> Directives { get; } = new();
         internal string Namespace { get; set; }
 
@@ -69,12 +68,28 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Every directive this definition needs: the ones added by hand, plus the namespaces of any types
+        /// it names through a real System.Type rather than a raw string.
+        /// </summary>
+        internal SortedSet<string> GetAllDirectives()
+        {
+            SortedSet<string> allDirectives = new(Directives);
+            if (this is GeneratableTypeDefinition typeDefinition)
+            {
+                foreach (string requiredNamespace in typeDefinition.GetRequiredNamespaces()) allDirectives.Add(requiredNamespace);
+            }
+
+            return allDirectives;
+        }
+
         protected void AddUsingDirectives(StringBuilder sb, int indent)
         {
-            foreach (string directive in Directives)
+            SortedSet<string> allDirectives = GetAllDirectives();
+            foreach (string directive in allDirectives)
                 AddLine(sb, indent, $"using {directive};");
 
-            if (Directives.Count > 0)
+            if (allDirectives.Count > 0)
                 AddEmptyLine(sb);
         }
 

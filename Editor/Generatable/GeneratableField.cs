@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
@@ -25,6 +26,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private bool isReadOnly;
 
         private bool HasInitialValue => initialValueExpression != null;
+
+        internal override IEnumerable<TypeRef> ReferencedTypes => new[] { fieldType };
 
         internal GeneratableField(string name, TypeRef fieldType) : base(name, AccessModifier.Private, isStatic: false)
         {

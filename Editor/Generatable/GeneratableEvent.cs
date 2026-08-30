@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
@@ -22,6 +23,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private string removeExpression;
 
         private bool HasAccessors => addExpression != null || removeExpression != null;
+
+        internal override IEnumerable<TypeRef> ReferencedTypes => new[] { handlerType };
 
         internal GeneratableEvent(string name) : base(name, AccessModifier.Private, isStatic: false) { }
 

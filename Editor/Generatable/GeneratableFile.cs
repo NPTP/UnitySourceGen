@@ -104,7 +104,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             SortedSet<string> allDirectives = new(directives);
             foreach (GeneratableDefinition definition in definitions)
             {
-                foreach (string directive in definition.Directives) allDirectives.Add(directive);
+                foreach (string directive in definition.GetAllDirectives()) allDirectives.Add(directive);
             }
 
             if (allDirectives.Count == 0)

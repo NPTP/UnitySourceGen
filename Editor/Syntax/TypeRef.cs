@@ -50,18 +50,32 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
         /// <summary>The type name exactly as it will be written into the generated file.</summary>
         public string Name { get; }
 
+        /// <summary>
+        /// The namespace the type lives in, when it is known. Only types built from a real
+        /// <see cref="Type"/> know theirs - a TypeRef made from a raw string has no way to, so the using
+        /// directive for it has to be added by hand.
+        /// </summary>
+        public string Namespace { get; }
+
         public static TypeRef Void => new(VOID);
 
         public TypeRef(string name)
         {
             Name = string.IsNullOrWhiteSpace(name) ? VOID : name.Trim();
+            Namespace = null;
+        }
+
+        private TypeRef(string name, string typeNamespace)
+        {
+            Name = string.IsNullOrWhiteSpace(name) ? VOID : name.Trim();
+            Namespace = typeNamespace;
         }
 
         /// <summary>
         /// Build from a real type, resolving keyword aliases, generic arguments, arrays and nullables.
         /// Namespaces are omitted, so the generated file needs a using directive for the type.
         /// </summary>
-        public static TypeRef From(Type type) => new(FormatTypeName(type));
+        public static TypeRef From(Type type) => new(FormatTypeName(type), type?.Namespace);
 
         /// <summary>e.g. Generic("Dictionary", "string", "PlayerActions") -> Dictionary&lt;string, PlayerActions&gt;</summary>
         public static TypeRef Generic(string genericTypeName, params TypeRef[] typeArguments)

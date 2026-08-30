@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
@@ -22,6 +23,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private string getterExpression;
         private string setterExpression;
         private bool hasSetter;
+
+        internal override IEnumerable<TypeRef> ReferencedTypes => new[] { propertyType };
+
         private bool isSetterPrivate;
 
         internal GeneratableProperty(string name, TypeRef propertyType) : base(name, AccessModifier.Private, isStatic: false)

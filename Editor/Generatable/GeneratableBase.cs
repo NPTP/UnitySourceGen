@@ -5,6 +5,7 @@ using NPTP.UnitySourceGen.Editor.Enums;
 using System.Linq;
 using NPTP.UnitySourceGen.Editor.Extensions.Internal;
 using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
+using NPTP.UnitySourceGen.Editor.Syntax;
 
 namespace NPTP.UnitySourceGen.Editor.Generatable
 {
@@ -27,6 +28,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         /// genuine overloads are not silently dropped.
         /// </summary>
         internal virtual string DedupeKey => Name;
+
+        /// <summary>
+        /// The types this member names in its own declaration. Used to work out which using directives the
+        /// containing type or file needs, so callers do not have to list them by hand.
+        /// </summary>
+        internal virtual IEnumerable<TypeRef> ReferencedTypes => Enumerable.Empty<TypeRef>();
 
         private List<AddableAttribute> attributes;
 

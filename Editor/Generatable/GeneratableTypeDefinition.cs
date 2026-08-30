@@ -27,7 +27,6 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private string baseClassTypeName;
         private SortedSet<string> ImplementsInterfaces { get; } = new();
 
-        // TODO: Adding fields or properties with the same name should override any existing ones
         private List<GeneratableField> Fields { get; } = new();
         private List<GeneratableEvent> Events { get; } = new();
         private List<GeneratableProperty> Properties { get; } = new();
@@ -159,6 +158,22 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         }
 
         #endregion
+
+        /// <summary>
+        /// The namespaces of every type named by this type''s members, so the containing file can add the
+        /// using directives they need. Types named as raw strings are not included: a string carries no
+        /// namespace, so those directives still have to be added by hand.
+        /// </summary>
+        internal IEnumerable<string> GetRequiredNamespaces()
+        {
+            foreach (GeneratableBase member in Fields.Cast<GeneratableBase>().Concat(Events).Concat(Properties).Concat(Methods))
+            {
+                foreach (TypeRef referencedType in member.ReferencedTypes)
+                {
+                    if (!string.IsNullOrEmpty(referencedType.Namespace)) yield return referencedType.Namespace;
+                }
+            }
+        }
 
         internal override void AppendTypeDeclaration(StringBuilder sb, int indent)
         {

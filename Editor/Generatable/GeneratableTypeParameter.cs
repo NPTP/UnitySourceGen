@@ -41,6 +41,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal bool HasConstraints => constraints is { Length: > 0 };
 
+        internal TypeRef[] Constraints => constraints ?? Array.Empty<TypeRef>();
+
         /// <summary>e.g. "where TDevice : InputDevice". Empty when unconstrained.</summary>
         internal string GetConstraintClause()
         {

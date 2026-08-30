@@ -43,6 +43,22 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         internal GeneratableMethod(string name) : base(name, AccessModifier.Private, isStatic: false) { }
 
         /// <summary>
+        /// The types this method names in its signature.
+        /// </summary>
+        internal override IEnumerable<TypeRef> ReferencedTypes
+        {
+            get
+            {
+                yield return returnType;
+                foreach (GeneratableParameter parameter in parameters) yield return parameter.Type;
+                foreach (GeneratableTypeParameter typeParameter in typeParameters)
+                {
+                    foreach (TypeRef constraint in typeParameter.Constraints) yield return constraint;
+                }
+            }
+        }
+
+        /// <summary>
         /// Methods can be overloaded, so name alone is not enough to tell two of them apart. Parameter
         /// types and generic arity are what C# overload resolution uses, so they are what is compared here.
         /// </summary>
