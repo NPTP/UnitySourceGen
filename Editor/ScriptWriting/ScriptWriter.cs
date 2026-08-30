@@ -15,7 +15,7 @@ namespace NPTP.UnitySourceGen.Editor.ScriptWriting
             WaitingForStartMarker,
             WaitingForEndMarker
         }
-        
+
         internal static bool TryReplaceClass(Type classType, GeneratableClass generatableClass)
         {
             return AssetsScriptGetter.TryGetSystemFilePathToScriptInAssets(classType, out UnityAssetPath unityAssetPath) &&
@@ -60,39 +60,50 @@ namespace NPTP.UnitySourceGen.Editor.ScriptWriting
                 Debug.LogWarning($"The file could not be read: {e.Message}");
                 return false;
             }
-            
+
             return TryWrite(unityAssetPath, lines);
         }
 
         private static bool TryWrite(UnityAssetPath unityAssetPath, IEnumerable<string> contentsLines) => TryWrite(unityAssetPath, contentsLines.LinesToString());
-        internal static bool TryWrite(UnityAssetPath unityAssetPath, string contents)
+
+        internal static bool TryWrite(UnityAssetPath unityAssetPath, string contents) => Write(unityAssetPath, contents) != ScriptWriteResult.Failed;
+
+        /// <summary>
+        /// Write the file only if its contents differ from what is already there. Rewriting an identical
+        /// file makes Unity reimport it and reload the domain, which is slow and happens on every
+        /// generation run. Nothing is logged on success: a generator producing many files should report
+        /// its own summary rather than one console entry per file.
+        /// </summary>
+        internal static ScriptWriteResult Write(UnityAssetPath unityAssetPath, string contents)
         {
+            if (!unityAssetPath.IsValid)
+            {
+                return ScriptWriteResult.Failed;
+            }
+
             string systemPath = unityAssetPath.SystemPath;
 
             try
             {
-                int sepIndex = systemPath.LastIndexOf(Path.DirectorySeparatorChar);
-                if (sepIndex >= 0)
+                if (File.Exists(systemPath) && File.ReadAllText(systemPath) == contents)
                 {
-                    string directoryPath = systemPath.Remove(sepIndex);
-                    if (!Directory.Exists(directoryPath))
-                    {
-                        Directory.CreateDirectory(directoryPath);
-                    }
+                    return ScriptWriteResult.Unchanged;
+                }
+
+                string directoryPath = Path.GetDirectoryName(systemPath);
+                if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
                 }
 
                 File.WriteAllText(systemPath, contents);
-
-                Debug.Log($"{systemPath} written successfully!");
-                return true;
+                return ScriptWriteResult.Written;
             }
             catch (Exception e)
             {
-                Debug.Log($"File could not be written: {e.Message}");
-                return false;
+                Debug.LogError($"File could not be written: {e.Message}");
+                return ScriptWriteResult.Failed;
             }
         }
-        
-        
     }
 }
