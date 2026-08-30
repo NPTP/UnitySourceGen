@@ -183,6 +183,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return this;
         }
 
+        public GeneratableMethod Extending<T>(string parameterName) => Extending(TypeRef.From(typeof(T)), parameterName);
+
         #endregion
 
         #region Body

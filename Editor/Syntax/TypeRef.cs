@@ -13,10 +13,13 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
     /// from either a real type or a raw string, and both convert implicitly:
     /// </para>
     /// <code>
-    /// TypeRef a = typeof(Vector2);            // "Vector2"
-    /// TypeRef b = "PlayerActions";            // a type that is being generated right now
-    /// TypeRef c = TypeRef.Generic("List", b); // "List&lt;PlayerActions&gt;"
+    /// TypeRef a = "PlayerActions";              // a type that is being generated right now
+    /// TypeRef b = TypeRef.From(typeof(Vector2)); // a type that already exists
+    /// TypeRef c = TypeRef.Generic("List", a);    // "List&lt;PlayerActions&gt;"
     /// </code>
+    /// Strings convert implicitly, so a generated type name can be passed anywhere a TypeRef is taken.
+    /// An existing type does not: the generic overloads - NewField&lt;T&gt;, Returning&lt;T&gt; and the
+    /// rest - are the way to name one, so there is never a second redundant signature taking a typeof.
     /// A TypeRef built from a real type also knows its <see cref="Namespace"/>, which is what lets a
     /// generated file work out its own using directives. One built from a string cannot, so that directive
     /// has to be added by hand with WithDirective.
@@ -139,7 +142,8 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
             return backtickIndex < 0 ? typeName : typeName.Substring(0, backtickIndex);
         }
 
-        public static implicit operator TypeRef(Type type) => From(type);
+        // Deliberately no implicit conversion from Type: that would duplicate the generic overloads,
+        // which are the one way to name a type that already exists. Strings name types being generated.
         public static implicit operator TypeRef(string typeName) => new(typeName);
         public static implicit operator string(TypeRef typeRef) => typeRef.Name;
 
