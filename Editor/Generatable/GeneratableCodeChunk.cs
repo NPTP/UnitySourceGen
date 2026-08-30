@@ -7,9 +7,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     public class GeneratableCodeChunk : GeneratableBase
     {
         private List<GeneratableBase> Members { get; } = new();
-        
+
         internal int Indent { get; set; }
-        
+
         internal GeneratableCodeChunk(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic)
         {
         }
@@ -25,6 +25,9 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
                     case GeneratableField field:
                         AddLine(sb, Indent, field.GenerateStringRepresentation());
                         break;
+                    case GeneratableEvent generatableEvent:
+                        AddLine(sb, Indent, generatableEvent.GenerateStringRepresentation());
+                        break;
                     case GeneratableProperty property:
                         AddLine(sb, Indent, property.GenerateStringRepresentation());
                         break;
@@ -36,21 +39,22 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
                         break;
                 }
             }
-            
+
             return sb.ToString();
         }
-        
+
         internal void AddEmptyLine()
         {
             Members.Add(new GeneratableEmptyMember());
         }
-        
+
         internal void AddComment(GeneratableComment comment)
         {
             Members.Add(comment);
         }
 
         internal void AddField(GeneratableField field) => Members.Add(field);
+        internal void AddEvent(GeneratableEvent generatableEvent) => Members.Add(generatableEvent);
         internal void AddProperty(GeneratableProperty property) => Members.Add(property);
         internal void AddMethod(GeneratableMethod method) => Members.Add(method);
     }

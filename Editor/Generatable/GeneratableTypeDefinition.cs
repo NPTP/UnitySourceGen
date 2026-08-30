@@ -8,7 +8,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
     public abstract class GeneratableTypeDefinition : GeneratableDefinition
     {
         private const string PARTIAL = "partial";
-        
+
         protected abstract TypeDefinition TypeDefinition { get; }
 
         internal InheritanceModifier InheritanceModifier { get; set; }
@@ -19,6 +19,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         // TODO: Adding fields or properties with the same name should override any existing ones
         private List<GeneratableField> Fields { get; } = new();
+        private List<GeneratableEvent> Events { get; } = new();
         private List<GeneratableProperty> Properties { get; } = new();
         private List<GeneratableMethod> Methods { get; } = new();
 
@@ -39,23 +40,24 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
             AddClassSignature(sb, indent);
             AddOpenBrace(sb, indent);
-            
+
             indent++;
-            
+
             AddFields(sb, indent);
+            AddEvents(sb, indent);
             AddProperties(sb, indent);
             AddMethods(sb, indent);
-            
+
             indent--;
-            
+
             AddCloseBrace(sb, indent);
-            
+
             if (HasNamespace())
             {
                 indent--;
                 AddCloseBrace(sb, indent);
             }
-            
+
             return sb.ToString();
         }
 
@@ -79,7 +81,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
                     classSignature.Append(BaseClassTypeName);
                     if (implementsInterfaces) classSignature.Append(COMMA + SPACE);
                 }
-                
+
                 if (implementsInterfaces)
                 {
                     int i = 0;
@@ -97,9 +99,15 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private void AddFields(StringBuilder sb, int indent)
         {
             Fields.ForEach(field => AddLine(sb, indent, field.GenerateStringRepresentation()));
-            if (Fields.Count > 0 && (Methods.Count > 0 || Properties.Count > 0)) AddEmptyLine(sb);
+            if (Fields.Count > 0 && (Methods.Count > 0 || Properties.Count > 0 || Events.Count > 0)) AddEmptyLine(sb);
         }
-        
+
+        private void AddEvents(StringBuilder sb, int indent)
+        {
+            Events.ForEach(generatableEvent => AddLine(sb, indent, generatableEvent.GenerateStringRepresentation()));
+            if (Events.Count > 0 && (Methods.Count > 0 || Properties.Count > 0)) AddEmptyLine(sb);
+        }
+
         private void AddProperties(StringBuilder sb, int indent)
         {
             Properties.ForEach(property => AddLine(sb, indent, property.GenerateStringRepresentation()));
@@ -118,9 +126,10 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         }
 
         internal void AddField(GeneratableField field) => Add(field, Fields);
+        internal void AddEvent(GeneratableEvent generatableEvent) => Add(generatableEvent, Events);
         internal void AddProperty(GeneratableProperty property) => Add(property, Properties);
         internal void AddMethod(GeneratableMethod method) => Add(method, Methods);
-        
+
         private void Add<T>(T generatable, List<T> generatableList) where T : GeneratableBase
         {
             if (generatableList.Any(generatableElement => generatable.Name == generatableElement.Name))

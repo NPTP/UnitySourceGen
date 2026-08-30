@@ -120,5 +120,19 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
 
         #endregion
 
+
+        /// <summary>
+        /// Add an event. See <see cref="GeneratableEventBuilder"/> for what can be configured.
+        /// </summary>
+        public static GeneratableCodeChunk AddEvent(this GeneratableCodeChunk gen, string eventName, Action<GeneratableEventBuilder> configure)
+        {
+            if (!eventName.CheckValidGenerationName()) return gen;
+
+            GeneratableEventBuilder builder = new(eventName);
+            configure?.Invoke(builder);
+            gen.AddEvent(builder.Build());
+            return gen;
+        }
+
     }
 }

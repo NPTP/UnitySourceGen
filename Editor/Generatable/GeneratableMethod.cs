@@ -16,6 +16,13 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private readonly GeneratableTypeParameter[] typeParameters;
 
         /// <summary>
+        /// When set, the method explicitly implements this interface's member, so it is written as
+        /// "ReturnType IInterface.Name(...)" with no access modifier - explicit implementations may not
+        /// have one, and are never static.
+        /// </summary>
+        private readonly TypeRef explicitInterface;
+
+        /// <summary>
         /// When true, <see cref="body"/> holds a single expression written after "=>" rather than the
         /// statements of a block body.
         /// </summary>
@@ -35,8 +42,13 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
             GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, bool isExpressionBodied, params string[] body)
+            : this(name, returnType, accessModifier, inheritanceModifier, isStatic, typeParameters, parameters, default, isExpressionBodied, body) { }
+
+        internal GeneratableMethod(string name, TypeRef returnType, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, bool isStatic,
+            GeneratableTypeParameter[] typeParameters, GeneratableParameter[] parameters, TypeRef explicitInterface, bool isExpressionBodied, params string[] body)
             : base(name, accessModifier, isStatic)
         {
+            this.explicitInterface = explicitInterface;
             this.returnType = returnType;
             this.typeParameters = typeParameters ?? GeneratableTypeParameter.None;
             this.parameters = parameters ?? GeneratableParameter.None;
@@ -75,10 +87,20 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
             // TODO: rework hierarchy of classes so methods can have an inheritance modifier, partial, etc.
 
-            methodSignature.Append(AccessModifier.AsString());
-            if (IsStatic) methodSignature.Append(SPACE + STATIC);
-            methodSignature.Append(SPACE + returnType.Name);
-            methodSignature.Append(SPACE + Name);
+            bool isExplicitImplementation = !string.IsNullOrEmpty(explicitInterface.Name) && !explicitInterface.IsVoid;
+
+            if (isExplicitImplementation)
+            {
+                methodSignature.Append(returnType.Name);
+                methodSignature.Append(SPACE + explicitInterface.Name + "." + Name);
+            }
+            else
+            {
+                methodSignature.Append(AccessModifier.AsString());
+                if (IsStatic) methodSignature.Append(SPACE + STATIC);
+                methodSignature.Append(SPACE + returnType.Name);
+                methodSignature.Append(SPACE + Name);
+            }
             if (typeParameters.Length > 0)
             {
                 methodSignature.Append("<" + string.Join(COMMA + SPACE, typeParameters.Select(typeParameter => typeParameter.Name)) + ">");

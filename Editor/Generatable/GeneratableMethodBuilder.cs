@@ -25,6 +25,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private readonly List<string> bodyLines = new();
 
         private TypeRef returnType = TypeRef.Void;
+        private TypeRef explicitInterface;
         private AccessModifier accessModifier = AccessModifier.Private;
         private InheritanceModifier inheritanceModifier = InheritanceModifier.None;
         private bool isStatic;
@@ -67,6 +68,20 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             inheritanceModifier = modifier;
             return this;
         }
+
+        /// <summary>
+        /// Write this as an explicit interface implementation, e.g. "void IActionMapWrapper.Enable()".
+        /// Explicit implementations are only reachable through the interface, so they keep the member off
+        /// the type's own public surface. Any access modifier or static set here is ignored, since C# does
+        /// not allow either on an explicit implementation.
+        /// </summary>
+        public GeneratableMethodBuilder ExplicitlyImplementing(TypeRef interfaceType)
+        {
+            explicitInterface = interfaceType;
+            return this;
+        }
+
+        public GeneratableMethodBuilder ExplicitlyImplementing<T>() where T : class => ExplicitlyImplementing(TypeRef.From(typeof(T)));
 
         #endregion
 
@@ -122,7 +137,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         internal GeneratableMethod Build()
         {
             return new GeneratableMethod(name, returnType, accessModifier, inheritanceModifier, isStatic,
-                typeParameters.ToArray(), parameters.ToArray(), isExpressionBodied, bodyLines.ToArray());
+                typeParameters.ToArray(), parameters.ToArray(), explicitInterface, isExpressionBodied, bodyLines.ToArray());
         }
     }
 }
