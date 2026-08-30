@@ -32,6 +32,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private InheritanceModifier inheritanceModifier = InheritanceModifier.None;
         private bool isStatic;
         private bool isExpressionBodied;
+        private string conditionalCompilationSymbol;
 
         internal GeneratableMethodBuilder(string name)
         {
@@ -68,6 +69,16 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         public GeneratableMethodBuilder WithAttribute(string attributeName, params string[] arguments) =>
             WithAttribute(new AddableAttribute(attributeName, arguments));
+
+        /// <summary>
+        /// Wrap the method in "#if SYMBOL" / "#endif", e.g. OnlyIf("UNITY_EDITOR") for a member that must
+        /// not reach a build.
+        /// </summary>
+        public GeneratableMethodBuilder OnlyIf(string conditionalCompilationSymbol)
+        {
+            this.conditionalCompilationSymbol = conditionalCompilationSymbol;
+            return this;
+        }
 
         public GeneratableMethodBuilder Static()
         {
@@ -152,6 +163,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
                 typeParameters.ToArray(), parameters.ToArray(), explicitInterface, isExpressionBodied, bodyLines.ToArray());
 
             foreach (AddableAttribute attribute in attributes) method.AddAttribute(attribute);
+            method.ConditionalCompilationSymbol = conditionalCompilationSymbol;
 
             return method;
         }

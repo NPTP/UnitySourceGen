@@ -61,6 +61,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             int indent = 0;
             StringBuilder sb = new();
 
+            AppendIfDirective(sb);
             AddAttributeLines(sb, indent);
 
             if (isExpressionBodied)
@@ -68,7 +69,15 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
                 // Deliberately not AppendLine: a single-line member has no trailing newline, so it is not
                 // mistaken for a block with an empty last line when split back into lines.
                 string expression = body.Length > 0 ? body[0] : string.Empty;
-                return sb + $"{BuildSignature()} {EXPRESSION_ARROW} {expression}{SEMICOLON}";
+                sb.Append($"{BuildSignature()} {EXPRESSION_ARROW} {expression}{SEMICOLON}");
+
+                if (HasConditionalCompilation)
+                {
+                    sb.AppendLine();
+                    AppendEndIfDirective(sb);
+                }
+
+                return sb.ToString();
             }
 
             AddLine(sb, indent, BuildSignature());
@@ -79,6 +88,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             indent--;
 
             AddCloseBrace(sb, indent);
+            AppendEndIfDirective(sb);
 
             return sb.ToString();
         }

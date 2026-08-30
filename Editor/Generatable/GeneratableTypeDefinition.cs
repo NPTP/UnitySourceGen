@@ -27,6 +27,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         internal override void AppendTypeDeclaration(StringBuilder sb, int indent)
         {
+            AppendIfDirective(sb);
             AddAttributeLines(sb, indent);
             AddClassSignature(sb, indent);
             AddOpenBrace(sb, indent);
@@ -41,6 +42,12 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             indent--;
 
             AddCloseBrace(sb, indent);
+
+            if (HasConditionalCompilation)
+            {
+                AppendEndIfDirective(sb);
+                sb.AppendLine();
+            }
         }
 
         private void AddClassSignature(StringBuilder sb, int indent)

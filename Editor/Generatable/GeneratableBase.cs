@@ -27,6 +27,24 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
 
         protected bool HasAttributes => attributes is { Count: > 0 };
 
+        /// <summary>
+        /// When set, this member is wrapped in "#if SYMBOL" / "#endif". Preprocessor directives are always
+        /// written at column 0, which is how C# conventionally formats them regardless of nesting.
+        /// </summary>
+        internal string ConditionalCompilationSymbol { get; set; }
+
+        protected bool HasConditionalCompilation => !string.IsNullOrEmpty(ConditionalCompilationSymbol);
+
+        protected void AppendIfDirective(StringBuilder sb)
+        {
+            if (HasConditionalCompilation) sb.AppendLine($"#if {ConditionalCompilationSymbol}");
+        }
+
+        protected void AppendEndIfDirective(StringBuilder sb)
+        {
+            if (HasConditionalCompilation) sb.Append("#endif");
+        }
+
         protected AccessModifier AccessModifier { get; }
         public bool IsStatic { get; }
 

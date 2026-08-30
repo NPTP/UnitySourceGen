@@ -22,6 +22,8 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
         private readonly SortedSet<string> directives = new();
         private readonly List<string> headerComments = new();
 
+        private string conditionalCompilationSymbol;
+
         internal GeneratableFile() { }
 
         public GeneratableFile Containing(params GeneratableDefinition[] generatableDefinitions)
@@ -69,13 +71,28 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             return this;
         }
 
+        /// <summary>
+        /// Wrap the entire file, using directives included, in "#if SYMBOL" / "#endif". This is how a file
+        /// of editor-only code lives in a runtime assembly without reaching a build.
+        /// </summary>
+        public GeneratableFile OnlyIf(string symbol)
+        {
+            conditionalCompilationSymbol = symbol;
+            return this;
+        }
+
         public string GenerateStringRepresentation()
         {
             StringBuilder sb = new();
 
+            bool isConditional = !string.IsNullOrEmpty(conditionalCompilationSymbol);
+            if (isConditional) sb.AppendLine($"#if {conditionalCompilationSymbol}");
+
             AppendDirectives(sb);
             AppendHeaderComments(sb);
             AppendNamespaceGroups(sb);
+
+            if (isConditional) sb.AppendLine("#endif");
 
             return sb.ToString();
         }

@@ -131,5 +131,13 @@ namespace NPTP.UnitySourceGen.Editor.Extensions
         public static GeneratableTypeDefinition WithAttribute(this GeneratableTypeDefinition gen, string attributeName, params string[] arguments) =>
             gen.WithAttribute(new AddableAttribute(attributeName, arguments));
 
+
+        /// <summary>Wrap the whole type in "#if SYMBOL" / "#endif".</summary>
+        public static GeneratableTypeDefinition OnlyIf(this GeneratableTypeDefinition gen, string conditionalCompilationSymbol)
+        {
+            gen.ConditionalCompilationSymbol = conditionalCompilationSymbol;
+            return gen;
+        }
+
     }
 }
