@@ -1,6 +1,12 @@
 # Unity Source Gen
 ## Changelog
 
+1.2.0
+- A `TypeRef` built from a real type now reports every namespace needed to name it through `Namespaces`: its own, plus those of its generic arguments, array element type or nullable underlying type. `List<Vector3>` asks for both `System.Collections.Generic` and `UnityEngine`, where only the first was collected before
+- `TypeRef.Generic`, `Array` and `Nullable` carry the namespaces of what they were built from, so a generic named by string still contributes the usings of its TypeRef arguments
+- Keyword aliases such as `int` and `string` report no namespace, and neither do arrays or nullables of them, so a generated file no longer takes a using directive for `System` it has no use for
+- `Namespace` remains, as the one namespace the type itself lives in
+
 1.1.1
 - Tell constructors, conversion operators, explicit implementations and plain methods apart when deduping, so members sharing a name and parameter list no longer replace each other
 
