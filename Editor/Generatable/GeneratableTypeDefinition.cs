@@ -189,7 +189,7 @@ namespace NPTP.UnitySourceGen.Editor.Generatable
             {
                 foreach (TypeRef referencedType in member.ReferencedTypes)
                 {
-                    if (!string.IsNullOrEmpty(referencedType.Namespace)) yield return referencedType.Namespace;
+                    foreach (string requiredNamespace in referencedType.Namespaces) yield return requiredNamespace;
                 }
             }
         }

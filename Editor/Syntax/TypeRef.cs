@@ -24,9 +24,10 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
     /// An existing type does not: the generic overloads - NewField&lt;T&gt;, Returning&lt;T&gt; and the
     /// rest - are the way to name one, so there is never a second redundant signature taking a typeof.
     /// </para>
-    /// A TypeRef built from a real type also knows its <see cref="Namespace"/>, which is what lets a
-    /// generated file work out its own using directives. One built from a string cannot, so that directive
-    /// has to be added by hand with WithDirective.
+    /// A TypeRef built from a real type also knows its <see cref="Namespaces"/>: its own, plus those of any
+    /// generic arguments, array element or nullable underlying type. That is what lets a generated file work
+    /// out its own using directives. One built from a string knows none of its own, so that directive has to
+    /// be added by hand with WithDirective, but it still carries the namespaces of any TypeRef arguments.
     /// </summary>
     public readonly struct TypeRef : IEquatable<TypeRef>
     {
@@ -67,24 +68,33 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
         /// </summary>
         public string Namespace { get; }
 
+        /// <summary>
+        /// Every namespace a using directive is needed for to name this type: its own, plus those of its
+        /// generic arguments, array element type or nullable underlying type, without duplicates.
+        /// </summary>
+        public IReadOnlyList<string> Namespaces => namespaces ?? System.Array.Empty<string>();
+
+        private readonly string[] namespaces;
+
         public static TypeRef Void => new(VOID);
 
-        public TypeRef(string name) : this(name, null) { }
+        public TypeRef(string name) : this(name, null, null) { }
 
-        private TypeRef(string name, string typeNamespace)
+        private TypeRef(string name, string typeNamespace, IEnumerable<string> requiredNamespaces)
         {
             // Type names are frequently built from asset names, so the identifiers inside them are
             // sanitized here. The punctuation that shapes the name - generics, arrays, nullables - is left
             // intact, and a name coming from a real Type is already valid so nothing changes.
             Name = string.IsNullOrWhiteSpace(name) ? VOID : GeneratedIdentifier.SanitizeTypeName(name.Trim());
             Namespace = typeNamespace;
+            namespaces = requiredNamespaces?.Where(requiredNamespace => !string.IsNullOrEmpty(requiredNamespace)).Distinct().ToArray();
         }
 
         /// <summary>
         /// Build from a real type, resolving keyword aliases, generic arguments, arrays and nullables.
         /// Namespaces are omitted, so the generated file needs a using directive for the type.
         /// </summary>
-        public static TypeRef From(Type type) => new(FormatTypeName(type), type?.Namespace);
+        public static TypeRef From(Type type) => new(FormatTypeName(type), ResolveNamespace(type), CollectNamespaces(type));
 
         /// <summary>e.g. Generic("Dictionary", "string", "PlayerActions") -> Dictionary&lt;string, PlayerActions&gt;</summary>
         public static TypeRef Generic(string genericTypeName, params TypeRef[] typeArguments)
@@ -94,14 +104,15 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
                 return new TypeRef(genericTypeName);
             }
 
-            return new TypeRef($"{StripArity(genericTypeName)}<{string.Join(", ", typeArguments.Select(argument => argument.Name))}>");
+            return new TypeRef($"{StripArity(genericTypeName)}<{string.Join(", ", typeArguments.Select(argument => argument.Name))}>",
+                null, typeArguments.SelectMany(argument => argument.Namespaces));
         }
 
         /// <summary>e.g. Array("BindingInfo") -> BindingInfo[]</summary>
-        public static TypeRef Array(TypeRef elementType) => new(elementType.Name + "[]");
+        public static TypeRef Array(TypeRef elementType) => new(elementType.Name + "[]", elementType.Namespace, elementType.Namespaces);
 
         /// <summary>e.g. Nullable("int") -> int?</summary>
-        public static TypeRef Nullable(TypeRef underlyingType) => new(underlyingType.Name + "?");
+        public static TypeRef Nullable(TypeRef underlyingType) => new(underlyingType.Name + "?", underlyingType.Namespace, underlyingType.Namespaces);
 
         public bool IsVoid => Name == VOID;
 
@@ -136,6 +147,66 @@ namespace NPTP.UnitySourceGen.Editor.Syntax
 
             string genericArguments = string.Join(", ", type.GetGenericArguments().Select(FormatTypeName));
             return $"{StripArity(type.Name.Replace('+', '.'))}<{genericArguments}>";
+        }
+
+        /// <summary>
+        /// The namespace a using directive is needed for. Keyword aliases such as int and string need none,
+        /// and neither do arrays or nullables of them, so they report no namespace rather than "System".
+        /// </summary>
+        private static string ResolveNamespace(Type type)
+        {
+            while (type != null && type.IsArray)
+            {
+                type = type.GetElementType();
+            }
+
+            if (type != null && System.Nullable.GetUnderlyingType(type) is { } underlyingType)
+            {
+                type = underlyingType;
+            }
+
+            return type == null || keywordAliases.ContainsKey(type) ? null : type.Namespace;
+        }
+
+        /// <summary>
+        /// The namespaces of a type and everything it is built from, e.g. List&lt;Vector3&gt; needs both
+        /// System.Collections.Generic and UnityEngine. Keyword aliases and open generic parameters need none.
+        /// </summary>
+        private static IEnumerable<string> CollectNamespaces(Type type)
+        {
+            List<string> collected = new();
+            Collect(type);
+            return collected;
+
+            void Collect(Type current)
+            {
+                if (current == null || current.IsGenericParameter)
+                {
+                    return;
+                }
+
+                if (current.IsArray)
+                {
+                    Collect(current.GetElementType());
+                    return;
+                }
+
+                if (System.Nullable.GetUnderlyingType(current) is { } underlyingType)
+                {
+                    Collect(underlyingType);
+                    return;
+                }
+
+                if (!keywordAliases.ContainsKey(current) && !string.IsNullOrEmpty(current.Namespace))
+                {
+                    collected.Add(current.Namespace);
+                }
+
+                if (current.IsGenericType)
+                {
+                    foreach (Type argument in current.GetGenericArguments()) Collect(argument);
+                }
+            }
         }
 
         /// <summary>Reflection reports generic type names as e.g. "ValueActionWrapper`1".</summary>
